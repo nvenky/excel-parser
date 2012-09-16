@@ -5,15 +5,15 @@ HSSF - Horrible Spreadsheet Format – not anymore. With few annotations, excel 
 
 We had a requirement in our current project to parse multiple excel sheets and store the information to database. I hope most of the projects involving excel sheet parsing would be doing the same. We built a extensible framework to parse multiple sheets and populate JAVA objects with annotations.
 
-We will discuss the steps to use annotations to parse excel sheet and populate Java objects.
-
+Student Information Example
+----------------------
 Consider we have an excel sheet with student information.
-Parsing Logic:
+
+![Student Information](http://3.bp.blogspot.com/_OAeb_UFifRg/S2WiIfweGiI/AAAAAAAACCA/Sv36FYxed1E/s640/Screenshot.png)
+
 While parsing this excel sheet, we need to populate one “Section” object and multiple “Student” objects related to a Section. You can see that Student information is available in multiple rows whereas the Section details (Year, Section) is available in column B.
 
-We will have to annotate the above information to the domain class, that can be interpretted by the sheet parser.
-
-Annotate Domain Classes
+Step 1: Annotate Domain Classes
 ------------------------------------------------
 First we will see the steps to annotate Section object:
 
@@ -35,7 +35,7 @@ You can find three different annotation in this class.
 * `ExcelField`: This annotation tells the parser to fetch “year” information from Row 2 and “section” information from Row 3.
 * `MappedExcelObject`: Apart from Simple datatypes like “Double”,”String”, we might also try to populate complex java objects while parsing. In this case, each section has a list of student information to be parsed from excel sheet. This annotation will help the parser in identifying such fields.
 
-Next step is to annotate Student class:
+Then, annotate the Student class:
 
 	@ExcelObject(parseType = ParseType.ROW, start = 6, end = 8)
 	public class Student {
@@ -66,7 +66,7 @@ Next step is to annotate Student class:
 * `MappedExcelObject`: Student class does not have any complex object, hence this annoation is not used in this domain class.
 
 
-Invoke Sheet Parser
+Step 2: Invoke Sheet Parser
 ------------------------------------------------
 Once the annotation is done, you have just invoke the parser with the Sheet and the Root class you want to populate.
 
