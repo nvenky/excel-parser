@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svnroot/excelparsing/!svn/ver/1/SheetParser/src/main/java/com/thoughtworks/excelparser/annotations
+END
+ExcelField.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svnroot/excelparsing/!svn/ver/1/SheetParser/src/main/java/com/thoughtworks/excelparser/annotations/ExcelField.java
+END
+ExcelObject.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svnroot/excelparsing/!svn/ver/1/SheetParser/src/main/java/com/thoughtworks/excelparser/annotations/ExcelObject.java
+END
+ParseType.java
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svnroot/excelparsing/!svn/ver/1/SheetParser/src/main/java/com/thoughtworks/excelparser/annotations/ParseType.java
+END
+MappedExcelObject.java
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/svnroot/excelparsing/!svn/ver/1/SheetParser/src/main/java/com/thoughtworks/excelparser/annotations/MappedExcelObject.java
+END
