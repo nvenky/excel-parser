@@ -1,16 +1,6 @@
 Excel Parser Examples
 ===============
 
-Weld currently comes with a number of examples:
-
-* `jsf/numberguess` (a simple war example for JSF)
-* `jsf/login` (a simple war example for JSF)
-* `jsf/translator` (a simple EJB example for JSF)
-* `jsf/pastecode` (a more complex EJB example for JSF)
-* `jsf/permalink` (a more complex war example for JSF)
-* `se/numberguess` (the numberguess example for Java SE using Swing)
-* `se/helloworld` (a simple example for Java SE)
-
 HSSF - Horrible Spreadsheet Format – not anymore. With few annotations, excel parsing can be done in one line.
 
 We had a requirement in our current project to parse multiple excel sheets and store the information to database. I hope most of the projects involving excel sheet parsing would be doing the same. We built a extensible framework to parse multiple sheets and populate JAVA objects with annotations.
@@ -23,7 +13,7 @@ While parsing this excel sheet, we need to populate one “Section” object and
 
 We will have to annotate the above information to the domain class, that can be interpretted by the sheet parser.
 
-1) Annotate Domain Class:
+Annotate Domain Classes
 ------------------------------------------------
 First we will see the steps to annotate Section object:
 
@@ -40,14 +30,12 @@ First we will see the steps to annotate Section object:
 	}
 
 You can find three different annotation in this class.
-i)'ExcelObject': This annotation tells the parser about the parse type (Row or Column), number of objects to create (start, end). Based on the above annotation, Section value should be parsed Columnwise and information can be found in Column 2 (“B”) of the Excelsheet.
 
-ii)'ExcelField': This annotation tells the parser to fetch “year” information from Row 2 and “section” information from Row 3.
-
-iii)'MappedExcelObject': Apart from Simple datatypes like “Double”,”String”, we might also try to populate complex java objects while parsing. In this case, each section has a list of student information to be parsed from excel sheet. This annotation will help the parser in identifying such fields.
+* `ExcelObject`: This annotation tells the parser about the parse type (Row or Column), number of objects to create (start, end). Based on the above annotation, Section value should be parsed Columnwise and information can be found in Column 2 (“B”) of the Excelsheet.
+* `ExcelField`: This annotation tells the parser to fetch “year” information from Row 2 and “section” information from Row 3.
+* `MappedExcelObject`: Apart from Simple datatypes like “Double”,”String”, we might also try to populate complex java objects while parsing. In this case, each section has a list of student information to be parsed from excel sheet. This annotation will help the parser in identifying such fields.
 
 Next step is to annotate Student class:
-
 
 	@ExcelObject(parseType = ParseType.ROW, start = 6, end = 8)
 	public class Student {
@@ -73,12 +61,13 @@ Next step is to annotate Student class:
  		private Double totalScore;
 	}
 
-i) 'ExcelObject': As shown above, this annotation tells parser to parse Rows 6 to 8 (create 3 student objects). NOTE: Optional field “zeroIfNull” , if set to true, will populate Zero to all number fields (Double,Long,Integer) by default if the data is not available in DB.
+* `ExcelObject`: As shown above, this annotation tells parser to parse Rows 6 to 8 (create 3 student objects). NOTE: Optional field “zeroIfNull” , if set to true, will populate Zero to all number fields (Double,Long,Integer) by default if the data is not available in DB.
+* `ExcelField`: Student class has 7 values to be parsed and stored in the database. This is denoted in the domain class as annotation.
+* `MappedExcelObject`: Student class does not have any complex object, hence this annoation is not used in this domain class.
 
-ii) 'ExcelField': Student class has 7 values to be parsed and stored in the database. This is denoted in the domain class as annotation.
 
-iii) 'MappedExcelObject': Student class does not have any complex object, hence this annoation is not used in this domain class.
-
+Invoke Sheet Parser
+------------------------------------------------
 Once the annotation is done, you have just invoke the parser with the Sheet and the Root class you want to populate.
 
 	//Get the sheet using POI API.
