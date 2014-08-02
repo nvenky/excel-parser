@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 
 @Retention(value = RetentionPolicy.RUNTIME)
-@Target( { ElementType.FIELD })
+@Target({ElementType.FIELD})
 public @interface MappedExcelObject {
 
 }

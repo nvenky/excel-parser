@@ -4,7 +4,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 
 version = '1.0'
-project.group='excel-parser'
+project.group = 'excel-parser'
 
 jar {
     manifest {
@@ -26,8 +26,8 @@ dependencies {
 
 uploadArchives {
     repositories {
-       flatDir {
-           dirs 'repos'
-       }
+        flatDir {
+            dirs 'repos'
+        }
     }
 }
