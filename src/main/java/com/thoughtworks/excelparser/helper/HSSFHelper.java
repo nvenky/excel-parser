@@ -18,7 +18,6 @@ public class HSSFHelper {
     private static final String DATA_TYPE_NOT_SUPPORTED = "{0} Data type not supported for parsing";
     private static final String INVALID_NUMBER_FORMAT = "Invalid number found in sheet {0} at row {1}, column {2}";
     private static final String INVALID_DATE_FORMAT = "Invalid date found in sheet {0} at row {1}, column {2}";
-    ;
 
     /**
      * Returns the cell value. Supports Integer, Double, Long, String, Date.

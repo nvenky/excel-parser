@@ -10,8 +10,12 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class HSSFHelperTest {
     private HSSFHelper hssfHelper;
@@ -44,28 +48,30 @@ public class HSSFHelperTest {
         int rowNumber = 6;
         int columnNumber = 4;
         Cell cell = hssfHelper.getCell(sheet, rowNumber, columnNumber);
-        assertNotNull(hssfHelper.getDateCell(cell, sheetName, rowNumber, columnNumber));
+        Date actual = hssfHelper.getDateCell(cell, sheetName, rowNumber, columnNumber);
+
+        assertThat(actual, is(not(nullValue(Date.class))));
     }
 
     @Test
     public void testShouldReturnValidStringValue() throws ExcelParsingException {
-        assertEquals("1", hssfHelper.getStringCell(hssfHelper.getCell(sheet, 6, 1)));
-        assertEquals("A", hssfHelper.getStringCell(hssfHelper.getCell(sheet, 6, 5)));
-        assertEquals("James", hssfHelper.getStringCell(hssfHelper.getCell(sheet, 8, 3)));
+        assertThat(hssfHelper.getStringCell(hssfHelper.getCell(sheet, 6, 1)), is("1"));
+        assertThat(hssfHelper.getStringCell(hssfHelper.getCell(sheet, 6, 5)), is("A"));
+        assertThat(hssfHelper.getStringCell(hssfHelper.getCell(sheet, 8, 3)), is("James"));
     }
 
     @Test
     public void testShouldReturnValidNumericValue() throws ExcelParsingException {
-        assertEquals(1, hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 1), false, sheetName, 6, 1).intValue());
-        assertEquals(0, hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 8), true, sheetName, 6, 8).intValue());
-        assertNull(hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 8), false, sheetName, 6, 8));
+        assertThat(hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 1), false, sheetName, 6, 1), is(1));
+        assertThat(hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 8), true, sheetName, 6, 8), is(0));
+        assertThat(hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 8), false, sheetName, 6, 8), is(nullValue()));
 
-        assertEquals(2001L, hssfHelper.getLongCell(hssfHelper.getCell(sheet, 6, 2), false, sheetName, 6, 2).longValue());
-        assertEquals(0L, hssfHelper.getLongCell(hssfHelper.getCell(sheet, 10, 2), true, sheetName, 10, 2).longValue());
-        assertNull(hssfHelper.getLongCell(hssfHelper.getCell(sheet, 10, 2), false, sheetName, 10, 2));
+        assertThat(hssfHelper.getLongCell(hssfHelper.getCell(sheet, 6, 2), false, sheetName, 6, 2), is(2001L));
+        assertThat(hssfHelper.getLongCell(hssfHelper.getCell(sheet, 10, 2), true, sheetName, 10, 2), is(0L));
+        assertThat(hssfHelper.getLongCell(hssfHelper.getCell(sheet, 10, 2), false, sheetName, 10, 2), is(nullValue()));
 
-        assertEquals(new Double(450.3), hssfHelper.getDoubleCell(hssfHelper.getCell(sheet, 7, 8), false, sheetName, 7, 8));
-        assertEquals(new Double(300), hssfHelper.getDoubleCell(hssfHelper.getCell(sheet, 8, 8), false, sheetName, 8, 8));
-
+        assertThat(hssfHelper.getDoubleCell(hssfHelper.getCell(sheet, 7, 8), false, sheetName, 7, 8), is(450.3d));
+        assertThat(hssfHelper.getDoubleCell(hssfHelper.getCell(sheet, 8, 8), false, sheetName, 8, 8), is(300d));
     }
+
 }
