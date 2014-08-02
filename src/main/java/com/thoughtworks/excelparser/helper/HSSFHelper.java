@@ -94,14 +94,6 @@ public class HSSFHelper {
 
     /**
      * Gets the value of date cell.
-     *
-     * @param cell         TODO
-     * @param sheetName    Sheet Name
-     * @param rowNumber    the row number where the cell is placed.
-     * @param columnNumber the column number where the cell is placed
-     * @return date present in the given cell.
-     * @throws ExcelParsingException if the cell is of wrong type or the given location of cell is
-     *                               invalid.
      */
     Date getDateCell(Cell cell, Object... errorMessageArgs) throws ExcelParsingException {
         try {
@@ -117,7 +109,6 @@ public class HSSFHelper {
     /**
      * @param errorMessage     Error Message.
      * @param errorMessageArgs arguments.
-     * @return
      */
     private String getErrorMessage(String errorMessage, Object... errorMessageArgs) {
         return MessageFormat.format(errorMessage, errorMessageArgs);
