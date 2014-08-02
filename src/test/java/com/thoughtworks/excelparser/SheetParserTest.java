@@ -1,21 +1,21 @@
 package com.thoughtworks.excelparser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.List;
-
+import com.thoughtworks.example.domain.Section;
+import com.thoughtworks.excelparser.exception.ExcelParsingException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.thoughtworks.example.domain.Section;
-import com.thoughtworks.excelparser.exception.ExcelParsingException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 public class SheetParserTest {
 

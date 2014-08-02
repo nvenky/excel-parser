@@ -1,5 +1,14 @@
 package com.thoughtworks.excelparser;
 
+import com.thoughtworks.excelparser.annotations.ExcelField;
+import com.thoughtworks.excelparser.annotations.ExcelObject;
+import com.thoughtworks.excelparser.annotations.MappedExcelObject;
+import com.thoughtworks.excelparser.annotations.ParseType;
+import com.thoughtworks.excelparser.exception.ExcelParsingException;
+import com.thoughtworks.excelparser.helper.HSSFHelper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Sheet;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -8,20 +17,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.apache.poi.ss.usermodel.Sheet;
-
-import com.thoughtworks.excelparser.annotations.ExcelField;
-import com.thoughtworks.excelparser.annotations.ExcelObject;
-import com.thoughtworks.excelparser.annotations.MappedExcelObject;
-import com.thoughtworks.excelparser.annotations.ParseType;
-import com.thoughtworks.excelparser.exception.ExcelParsingException;
-import com.thoughtworks.excelparser.helper.HSSFHelper;
-
+@Slf4j
 public class SheetParser {
 	private HSSFHelper hssfHelper;
 	private Map<String, Map<Integer, Field>> excelMapCache;
-	private static final Logger LOGGER = Logger.getLogger(SheetParser.class);
 
 	public SheetParser() {
 		hssfHelper = new HSSFHelper();
@@ -37,8 +36,8 @@ public class SheetParser {
 			List<Field> mappedExcelFields = getMappedExcelObjects(clazz);
 			for (Field mappedField : mappedExcelFields) {
 				Class<?> fieldType = mappedField.getType();
-				List<?> fieldValue = createEntity(sheet, sheetName, fieldType.equals(List.class) ? getFieldType(mappedField)
-				        : fieldType);
+                Class<?> clazz1 = fieldType.equals(List.class) ? getFieldType(mappedField) : fieldType;
+                List<?> fieldValue = createEntity(sheet, sheetName, clazz1);
 				if (fieldType.equals(List.class)) {
 					setFieldValue(mappedField, object, fieldValue);
 				} else if (!fieldValue.isEmpty()) {
@@ -53,7 +52,7 @@ public class SheetParser {
 	private Class<?> getFieldType(Field field) {
 		Type type = field.getGenericType();
 		if (type instanceof ParameterizedType) {
-			ParameterizedType pt = (ParameterizedType) type;		
+			ParameterizedType pt = (ParameterizedType) type;
 			return (Class<?>) pt.getActualTypeArguments()[0];
 		}
 
@@ -107,7 +106,7 @@ public class SheetParser {
 		try {
 			object = clazz.newInstance();
 		} catch (Exception e) {
-			LOGGER.error(e);
+			log.error("Exception occured while instantiating the class {}", clazz.getName(), e);
 			throw new ExcelParsingException("Exception occured while instantiating the class " + clazz.getName(), e);
 		}
 		return object;
@@ -117,10 +116,10 @@ public class SheetParser {
 		try {
 			field.set(object, cellValue);
 		} catch (IllegalArgumentException e) {
-			LOGGER.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 			throw new ExcelParsingException("Exception occured while setting field value ", e);
 		} catch (IllegalAccessException e) {
-			LOGGER.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 			throw new ExcelParsingException("Exception occured while setting field value ", e);
 		}
 	}
