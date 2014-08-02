@@ -18,10 +18,10 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class HSSFHelperTest {
-    private HSSFHelper hssfHelper;
-    private Sheet sheet;
-    private String sheetName = "Sheet1";
-    private InputStream inputStream;
+    HSSFHelper hssfHelper;
+    Sheet sheet;
+    String sheetName = "Sheet1";
+    InputStream inputStream;
 
     @Before
     public void setUp() throws IOException {

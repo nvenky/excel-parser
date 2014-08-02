@@ -19,10 +19,10 @@ import static org.junit.Assert.assertThat;
 
 public class SheetParserTest {
 
-    private SheetParser parser;
-    private Sheet sheet;
-    private String sheetName = "Sheet1";
-    private InputStream inputStream;
+    SheetParser parser;
+    Sheet sheet;
+    String sheetName = "Sheet1";
+    InputStream inputStream;
 
     @Before
     public void setUp() throws IOException {

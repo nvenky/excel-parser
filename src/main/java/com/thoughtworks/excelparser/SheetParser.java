@@ -6,6 +6,8 @@ import com.thoughtworks.excelparser.annotations.MappedExcelObject;
 import com.thoughtworks.excelparser.annotations.ParseType;
 import com.thoughtworks.excelparser.exception.ExcelParsingException;
 import com.thoughtworks.excelparser.helper.HSSFHelper;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -18,18 +20,20 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SheetParser {
-    private HSSFHelper hssfHelper;
-    private Map<String, Map<Integer, Field>> excelMapCache;
+    HSSFHelper hssfHelper;
+    Map<String, Map<Integer, Field>> excelMapCache;
 
     public SheetParser() {
         hssfHelper = new HSSFHelper();
-        excelMapCache = new HashMap<String, Map<Integer, Field>>();
+        excelMapCache = new HashMap<>();
     }
 
     public <T> List<T> createEntity(Sheet sheet, String sheetName, Class<T> clazz)
             throws ExcelParsingException {
-        List<T> list = new ArrayList<T>();
+
+        List<T> list = new ArrayList<>();
         ExcelObject excelObject = getExcelObject(clazz);
         for (int currentLocation = excelObject.start(); currentLocation <= excelObject.end(); currentLocation++) {
             T object = getNewInstance(sheet, sheetName, clazz, excelObject.parseType(), currentLocation, excelObject.zeroIfNull());
@@ -72,17 +76,19 @@ public class SheetParser {
         return fieldList;
     }
 
-    private <T> ExcelObject getExcelObject(Class<T> clazz) throws ExcelParsingException {
+    private <T> ExcelObject getExcelObject(Class<T> clazz)
+            throws ExcelParsingException {
+
         ExcelObject excelObject = clazz.getAnnotation(ExcelObject.class);
         if (excelObject == null) {
-            throw new ExcelParsingException("Invalid class configuration - ExcelObject annotation missing - "
-                    + clazz.getSimpleName());
+            throw new ExcelParsingException("Invalid class configuration - ExcelObject annotation missing - " + clazz.getSimpleName());
         }
         return excelObject;
     }
 
-    private <T> T getNewInstance(Sheet sheet, String sheetName, Class<T> clazz, ParseType parseType,
-                                 Integer currentLocation, boolean zeroIfNull) throws ExcelParsingException {
+    private <T> T getNewInstance(Sheet sheet, String sheetName, Class<T> clazz, ParseType parseType, Integer currentLocation, boolean zeroIfNull)
+            throws ExcelParsingException {
+
         T object = getInstance(clazz);
         Map<Integer, Field> excelPositionMap = getExcelFieldPositionMap(clazz);
         for (Integer position : excelPositionMap.keySet()) {
@@ -102,7 +108,7 @@ public class SheetParser {
     }
 
     private <T> T getInstance(Class<T> clazz) throws ExcelParsingException {
-        T object = null;
+        T object;
         try {
             object = clazz.newInstance();
         } catch (Exception e) {
@@ -115,10 +121,7 @@ public class SheetParser {
     private <T> void setFieldValue(Field field, T object, Object cellValue) throws ExcelParsingException {
         try {
             field.set(object, cellValue);
-        } catch (IllegalArgumentException e) {
-            log.error(e.getMessage(), e);
-            throw new ExcelParsingException("Exception occured while setting field value ", e);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             log.error(e.getMessage(), e);
             throw new ExcelParsingException("Exception occured while setting field value ", e);
         }
@@ -136,7 +139,7 @@ public class SheetParser {
      * @return Map.
      */
     private <T> Map<Integer, Field> loadCache(Class<T> clazz) {
-        Map<Integer, Field> fieldMap = new HashMap<Integer, Field>();
+        Map<Integer, Field> fieldMap = new HashMap<>();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             ExcelField excelField = field.getAnnotation(ExcelField.class);

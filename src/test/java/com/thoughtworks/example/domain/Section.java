@@ -4,30 +4,24 @@ import com.thoughtworks.excelparser.annotations.ExcelField;
 import com.thoughtworks.excelparser.annotations.ExcelObject;
 import com.thoughtworks.excelparser.annotations.MappedExcelObject;
 import com.thoughtworks.excelparser.annotations.ParseType;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @ExcelObject(parseType = ParseType.COLUMN, start = 2, end = 2)
 public class Section {
 
     @ExcelField(position = 2)
-    private String year;
+    String year;
 
     @ExcelField(position = 3)
-    private String section;
+    String section;
 
     @MappedExcelObject
-    private List<Student> students;
+    List<Student> students;
 
-    public List<Student> getStudents() {
-        return students;
-    }
-
-    public String getYear() {
-        return year;
-    }
-
-    public String getSection() {
-        return section;
-    }
 }
