@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -110,7 +111,9 @@ public class SheetParser {
     private <T> T getInstance(Class<T> clazz) throws ExcelParsingException {
         T object;
         try {
-            object = clazz.newInstance();
+            Constructor<T> constructor = clazz.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            object = constructor.newInstance();
         } catch (Exception e) {
             log.error("Exception occured while instantiating the class {}", clazz.getName(), e);
             throw new ExcelParsingException("Exception occured while instantiating the class " + clazz.getName(), e);

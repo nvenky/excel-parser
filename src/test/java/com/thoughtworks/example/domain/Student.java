@@ -4,12 +4,14 @@ import com.thoughtworks.excelparser.annotations.ExcelField;
 import com.thoughtworks.excelparser.annotations.ExcelObject;
 import com.thoughtworks.excelparser.annotations.ParseType;
 import lombok.AccessLevel;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Value;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
 
-@Data
+@Value
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @ExcelObject(parseType = ParseType.ROW, start = 6, end = 8)
 public class Student {
@@ -35,4 +37,8 @@ public class Student {
     @ExcelField(position = 8)
     Double totalScore;
 
+    @SuppressWarnings("UnusedDeclaration")
+    private Student() {
+        this(null, null, null, null, null, null, null);
+    }
 }
