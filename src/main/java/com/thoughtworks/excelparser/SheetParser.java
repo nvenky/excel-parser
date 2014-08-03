@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,18 +32,16 @@ public class SheetParser {
         excelMapCache = new HashMap<>();
     }
 
-    public <T> List<T> createEntity(Sheet sheet, String sheetName, Class<T> clazz)
-            throws ExcelParsingException {
-
+    public <T> List<T> createEntity(Sheet sheet, String sheetName, Class<T> clazz, Consumer<ExcelParsingException> errorHandler) {
         List<T> list = new ArrayList<>();
         ExcelObject excelObject = getExcelObject(clazz);
         for (int currentLocation = excelObject.start(); currentLocation <= excelObject.end(); currentLocation++) {
-            T object = getNewInstance(sheet, sheetName, clazz, excelObject.parseType(), currentLocation, excelObject.zeroIfNull());
+            T object = getNewInstance(sheet, sheetName, clazz, excelObject.parseType(), currentLocation, excelObject.zeroIfNull(), errorHandler);
             List<Field> mappedExcelFields = getMappedExcelObjects(clazz);
             for (Field mappedField : mappedExcelFields) {
                 Class<?> fieldType = mappedField.getType();
                 Class<?> clazz1 = fieldType.equals(List.class) ? getFieldType(mappedField) : fieldType;
-                List<?> fieldValue = createEntity(sheet, sheetName, clazz1);
+                List<?> fieldValue = createEntity(sheet, sheetName, clazz1, errorHandler);
                 if (fieldType.equals(List.class)) {
                     setFieldValue(mappedField, object, fieldValue);
                 } else if (!fieldValue.isEmpty()) {
@@ -52,6 +51,12 @@ public class SheetParser {
             list.add(object);
         }
         return list;
+    }
+
+    public <T> List<T> createEntity(Sheet sheet, String sheetName, Class<T> clazz) throws ExcelParsingException {
+        return createEntity(sheet, sheetName, clazz, error -> {
+            throw error;
+        });
     }
 
     private Class<?> getFieldType(Field field) {
@@ -87,7 +92,7 @@ public class SheetParser {
         return excelObject;
     }
 
-    private <T> T getNewInstance(Sheet sheet, String sheetName, Class<T> clazz, ParseType parseType, Integer currentLocation, boolean zeroIfNull)
+    private <T> T getNewInstance(Sheet sheet, String sheetName, Class<T> clazz, ParseType parseType, Integer currentLocation, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler)
             throws ExcelParsingException {
 
         T object = getInstance(clazz);
@@ -97,10 +102,10 @@ public class SheetParser {
             Object cellValue;
             if (ParseType.ROW == parseType) {
                 cellValue = hssfHelper.getCellValue(sheet, sheetName, field.getType(), currentLocation, position,
-                        zeroIfNull);
+                        zeroIfNull, errorHandler);
             } else {
                 cellValue = hssfHelper.getCellValue(sheet, sheetName, field.getType(), position, currentLocation,
-                        zeroIfNull);
+                        zeroIfNull, errorHandler);
             }
             setFieldValue(field, object, cellValue);
         }

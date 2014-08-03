@@ -12,6 +12,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -28,18 +30,35 @@ public class SheetParserTest {
     }
 
     @Test
-    public void shouldCreateEntityBasedOnAnnotationFromExcel97File() throws ExcelParsingException, IOException {
+    public void shouldCreateEntityBasedOnAnnotationFromExcel97File() throws Exception {
         performTestUsing(openSheet("Student Profile.xls"));
     }
 
     @Test
-    public void shouldCreateEntityBasedOnAnnotationFromExcel2007File() throws ExcelParsingException, IOException {
+    public void shouldCreateEntityBasedOnAnnotationFromExcel2007File() throws Exception {
         performTestUsing(openSheet("Student Profile.xlsx"));
     }
 
-    private void performTestUsing(Sheet sheet) throws ExcelParsingException {
+    @Test
+    public void shouldCallErrorHandlerWhenRowCannotBeParsed() throws Exception {
+        List<ExcelParsingException> errors = new ArrayList<>();
         SheetParser parser = new SheetParser();
-        List<Section> entityList = parser.createEntity(sheet, "Sheet1", Section.class);
+
+        List<Section> entityList = parser.createEntity(openSheet("Errors.xlsx"), "Sheet1", Section.class, errors::add);
+
+        assertThat(entityList.size(), is(1));
+        Section section = entityList.get(0);
+        assertThat(section.getStudents().get(0).getDateOfBirth(), is(nullValue(Date.class)));
+
+        assertThat(errors.size(), is(3));
+        assertThat(errors.get(0).getMessage(), is("Invalid date found in sheet Sheet1 at row 6, column 4"));
+        assertThat(errors.get(1).getMessage(), is("Invalid date found in sheet Sheet1 at row 7, column 4"));
+        assertThat(errors.get(2).getMessage(), is("Invalid date found in sheet Sheet1 at row 8, column 4"));
+    }
+
+    private void performTestUsing(Sheet sheet) {
+        SheetParser parser = new SheetParser();
+        List<Section> entityList = parser.createEntity(sheet, "Sheet1", Section.class, error -> { throw error; });
         assertThat(entityList.size(), is(1));
         Section section = entityList.get(0);
         assertThat(section.getYear(), is("IV"));

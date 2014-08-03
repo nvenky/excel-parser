@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -40,7 +41,9 @@ public class HSSFHelperTest {
         int rowNumber = 2;
         int columnNumber = 2;
         Cell cell = hssfHelper.getCell(sheet, rowNumber, columnNumber);
-        hssfHelper.getDateCell(cell, sheetName, rowNumber, columnNumber);
+        hssfHelper.getDateCell(cell, sheetName, rowNumber, columnNumber, e -> {
+            throw e;
+        });
     }
 
     @Test
@@ -48,16 +51,21 @@ public class HSSFHelperTest {
         int rowNumber = 6;
         int columnNumber = 4;
         Cell cell = hssfHelper.getCell(sheet, rowNumber, columnNumber);
-        Date actual = hssfHelper.getDateCell(cell, sheetName, rowNumber, columnNumber);
+        Date actual = hssfHelper.getDateCell(cell, sheetName, rowNumber, columnNumber, e -> {
+            throw e;
+        });
 
         assertThat(actual, is(not(nullValue(Date.class))));
     }
 
     @Test
     public void testShouldReturnValidStringValue() throws ExcelParsingException {
-        assertThat(hssfHelper.getStringCell(hssfHelper.getCell(sheet, 6, 1)), is("1"));
-        assertThat(hssfHelper.getStringCell(hssfHelper.getCell(sheet, 6, 5)), is("A"));
-        assertThat(hssfHelper.getStringCell(hssfHelper.getCell(sheet, 8, 3)), is("James"));
+        Consumer<ExcelParsingException> errorHandler = e -> {
+            throw e;
+        };
+        assertThat(hssfHelper.getStringCell(hssfHelper.getCell(sheet, 6, 1), errorHandler), is("1"));
+        assertThat(hssfHelper.getStringCell(hssfHelper.getCell(sheet, 6, 5), errorHandler), is("A"));
+        assertThat(hssfHelper.getStringCell(hssfHelper.getCell(sheet, 8, 3), errorHandler), is("James"));
     }
 
     @Test

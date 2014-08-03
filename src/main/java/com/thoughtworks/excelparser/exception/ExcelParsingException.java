@@ -1,6 +1,6 @@
 package com.thoughtworks.excelparser.exception;
 
-public class ExcelParsingException extends Exception {
+public class ExcelParsingException extends RuntimeException {
 
     public ExcelParsingException(String message) {
         super(message);

@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.function.Consumer;
 
 @Slf4j
 public class HSSFHelper {
@@ -35,21 +36,21 @@ public class HSSFHelper {
      * @throws ExcelParsingException
      */
     @SuppressWarnings("unchecked")
-    public <T> T getCellValue(Sheet sheet, String sheetName, Class<T> type, Integer row, Integer col, boolean zeroIfNull)
+    public <T> T getCellValue(Sheet sheet, String sheetName, Class<T> type, Integer row, Integer col, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler)
             throws ExcelParsingException {
         Cell cell = getCell(sheet, row, col);
         if (type.equals(String.class)) {
-            return cell == null ? null : (T) getStringCell(cell);
+            return cell == null ? null : (T) getStringCell(cell, errorHandler);
         } else if (type.equals(Date.class)) {
-            return cell == null ? null : (T) getDateCell(cell, sheetName, row, col);
+            return cell == null ? null : (T) getDateCell(cell, sheetName, row, col, errorHandler);
         }
 
         if (type.equals(Integer.class)) {
-            return (T) getIntegerCell(cell, zeroIfNull, sheetName, row, col);
+            return (T) getIntegerCell(cell, zeroIfNull, sheetName, row, col, errorHandler);
         } else if (type.equals(Double.class)) {
-            return (T) getDoubleCell(cell, zeroIfNull, sheetName, row, col);
+            return (T) getDoubleCell(cell, zeroIfNull, sheetName, row, col, errorHandler);
         } else if (type.equals(Long.class)) {
-            return (T) getLongCell(cell, zeroIfNull, sheetName, row, col);
+            return (T) getLongCell(cell, zeroIfNull, sheetName, row, col, errorHandler);
         }
         throw new ExcelParsingException(getErrorMessage(DATA_TYPE_NOT_SUPPORTED, type.getName()));
     }
@@ -70,7 +71,7 @@ public class HSSFHelper {
      * @throws ExcelParsingException if the cell is of wrong type or the given location of cell is
      *                               invalid.
      */
-    String getStringCell(Cell cell) throws ExcelParsingException {
+    String getStringCell(Cell cell, Consumer<ExcelParsingException> errorHandler) {
         if (cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
             int type = cell.getCachedFormulaResultType();
             switch (type) {
@@ -95,15 +96,16 @@ public class HSSFHelper {
     /**
      * Gets the value of date cell.
      */
-    Date getDateCell(Cell cell, Object... errorMessageArgs) throws ExcelParsingException {
+    Date getDateCell(Cell cell, String sheetName, int row, int col, Consumer<ExcelParsingException> errorHandler) {
         try {
             if (!HSSFDateUtil.isCellDateFormatted(cell)) {
-                throw new ExcelParsingException(getErrorMessage(INVALID_DATE_FORMAT, errorMessageArgs));
+                errorHandler.accept(new ExcelParsingException(getErrorMessage(INVALID_DATE_FORMAT, sheetName, row, col)));
             }
+            return HSSFDateUtil.getJavaDate(cell.getNumericCellValue());
         } catch (IllegalStateException illegalStateException) {
-            throw new ExcelParsingException(getErrorMessage(INVALID_DATE_FORMAT, errorMessageArgs));
+            errorHandler.accept(new ExcelParsingException(getErrorMessage(INVALID_DATE_FORMAT, sheetName, row, col)));
         }
-        return HSSFDateUtil.getJavaDate(cell.getNumericCellValue());
+        return null;
     }
 
     /**
