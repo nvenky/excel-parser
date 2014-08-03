@@ -35,7 +35,7 @@ public class HSSFHelperTest {
     }
 
     @Test(expected = ExcelParsingException.class)
-    public void testShouldThrowExceptionOnInvalidDateCell() throws ExcelParsingException {
+    public void testShouldThrowExceptionOnInvalidDateCell() {
         int rowNumber = 2;
         int columnNumber = 2;
         Cell cell = HSSFHelper.getCell(sheet, rowNumber, columnNumber);
@@ -45,7 +45,7 @@ public class HSSFHelperTest {
     }
 
     @Test
-    public void testShouldReturnValidDate() throws ExcelParsingException {
+    public void testShouldReturnValidDate() {
         int rowNumber = 6;
         int columnNumber = 4;
         Cell cell = HSSFHelper.getCell(sheet, rowNumber, columnNumber);
@@ -57,7 +57,7 @@ public class HSSFHelperTest {
     }
 
     @Test
-    public void testShouldReturnValidStringValue() throws ExcelParsingException {
+    public void testShouldReturnValidStringValue() {
         Consumer<ExcelParsingException> errorHandler = e -> {
             throw e;
         };
@@ -67,7 +67,7 @@ public class HSSFHelperTest {
     }
 
     @Test
-    public void testShouldReturnValidNumericValue() throws ExcelParsingException {
+    public void testShouldReturnValidNumericValue() {
         assertThat(HSSFHelper.getIntegerCell(HSSFHelper.getCell(sheet, 6, 1), false, new Locator(sheetName, 6, 1), e -> { throw e; }), is(1));
         assertThat(HSSFHelper.getIntegerCell(HSSFHelper.getCell(sheet, 6, 8), true, new Locator(sheetName, 6, 8),e -> { throw e; }), is(0));
         assertThat(HSSFHelper.getIntegerCell(HSSFHelper.getCell(sheet, 6, 8), false, new Locator(sheetName, 6, 8), e -> { throw e; }), is(nullValue()));

@@ -106,8 +106,7 @@ public class HSSFHelper {
         return doubleValue == null ? null : doubleValue.intValue();
     }
 
-    private static Double getNumberWithoutDecimals(Cell cell, boolean zeroIfNull, Locator locator, Consumer<ExcelParsingException> errorHandler)
-            throws ExcelParsingException {
+    private static Double getNumberWithoutDecimals(Cell cell, boolean zeroIfNull, Locator locator, Consumer<ExcelParsingException> errorHandler) {
         Double doubleValue = getDoubleCell(cell, zeroIfNull, locator, errorHandler);
         if (doubleValue != null && doubleValue % 1 != 0) {
             errorHandler.accept(new ExcelParsingException(getErrorMessage("Invalid number found in sheet {0} at row {1}, column {2}", locator)));

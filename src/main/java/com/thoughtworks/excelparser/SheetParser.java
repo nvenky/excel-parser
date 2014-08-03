@@ -55,7 +55,7 @@ public class SheetParser {
      * @deprecated Pass an error handler lambda instead (see other signature)
      */
     @Deprecated
-    public <T> List<T> createEntity(Sheet sheet, String sheetName, Class<T> clazz) throws ExcelParsingException {
+    public <T> List<T> createEntity(Sheet sheet, String sheetName, Class<T> clazz) {
         return createEntity(sheet, sheetName, clazz, error -> {
             throw error;
         });
@@ -84,9 +84,7 @@ public class SheetParser {
         return fieldList;
     }
 
-    private <T> ExcelObject getExcelObject(Class<T> clazz)
-            throws ExcelParsingException {
-
+    private <T> ExcelObject getExcelObject(Class<T> clazz) {
         ExcelObject excelObject = clazz.getAnnotation(ExcelObject.class);
         if (excelObject == null) {
             throw new ExcelParsingException("Invalid class configuration - ExcelObject annotation missing - " + clazz.getSimpleName());
@@ -94,9 +92,7 @@ public class SheetParser {
         return excelObject;
     }
 
-    private <T> T getNewInstance(Sheet sheet, String sheetName, Class<T> clazz, ParseType parseType, Integer currentLocation, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler)
-            throws ExcelParsingException {
-
+    private <T> T getNewInstance(Sheet sheet, String sheetName, Class<T> clazz, ParseType parseType, Integer currentLocation, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler) {
         T object = getInstance(clazz);
         Map<Integer, Field> excelPositionMap = getExcelFieldPositionMap(clazz);
         for (Integer position : excelPositionMap.keySet()) {
@@ -113,7 +109,7 @@ public class SheetParser {
         return object;
     }
 
-    private <T> T getInstance(Class<T> clazz) throws ExcelParsingException {
+    private <T> T getInstance(Class<T> clazz) {
         T object;
         try {
             Constructor<T> constructor = clazz.getDeclaredConstructor();
@@ -126,7 +122,7 @@ public class SheetParser {
         return object;
     }
 
-    private <T> void setFieldValue(Field field, T object, Object cellValue) throws ExcelParsingException {
+    private <T> void setFieldValue(Field field, T object, Object cellValue) {
         try {
             field.set(object, cellValue);
         } catch (IllegalArgumentException | IllegalAccessException e) {
