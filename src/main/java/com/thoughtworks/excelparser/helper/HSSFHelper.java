@@ -42,7 +42,7 @@ public class HSSFHelper {
         if (type.equals(String.class)) {
             return cell == null ? null : (T) getStringCell(cell, errorHandler);
         } else if (type.equals(Date.class)) {
-            return cell == null ? null : (T) getDateCell(cell, sheetName, row, col, errorHandler);
+            return cell == null ? null : (T) getDateCell(cell, new Locator(sheetName, row, col), errorHandler);
         }
 
         if (type.equals(Integer.class)) {
@@ -96,14 +96,14 @@ public class HSSFHelper {
     /**
      * Gets the value of date cell.
      */
-    Date getDateCell(Cell cell, String sheetName, int row, int col, Consumer<ExcelParsingException> errorHandler) {
+    Date getDateCell(Cell cell, Locator position, Consumer<ExcelParsingException> errorHandler) {
         try {
             if (!HSSFDateUtil.isCellDateFormatted(cell)) {
-                errorHandler.accept(new ExcelParsingException(getErrorMessage(INVALID_DATE_FORMAT, sheetName, row, col)));
+                errorHandler.accept(new ExcelParsingException(getErrorMessage(INVALID_DATE_FORMAT, position.getSheetName(), position.getRow(), position.getCol())));
             }
             return HSSFDateUtil.getJavaDate(cell.getNumericCellValue());
         } catch (IllegalStateException illegalStateException) {
-            errorHandler.accept(new ExcelParsingException(getErrorMessage(INVALID_DATE_FORMAT, sheetName, row, col)));
+            errorHandler.accept(new ExcelParsingException(getErrorMessage(INVALID_DATE_FORMAT, position.getSheetName(), position.getRow(), position.getCol())));
         }
         return null;
     }

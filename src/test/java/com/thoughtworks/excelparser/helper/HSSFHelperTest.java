@@ -41,7 +41,7 @@ public class HSSFHelperTest {
         int rowNumber = 2;
         int columnNumber = 2;
         Cell cell = hssfHelper.getCell(sheet, rowNumber, columnNumber);
-        hssfHelper.getDateCell(cell, sheetName, rowNumber, columnNumber, e -> {
+        hssfHelper.getDateCell(cell, new Locator(sheetName, rowNumber, columnNumber), e -> {
             throw e;
         });
     }
@@ -51,7 +51,7 @@ public class HSSFHelperTest {
         int rowNumber = 6;
         int columnNumber = 4;
         Cell cell = hssfHelper.getCell(sheet, rowNumber, columnNumber);
-        Date actual = hssfHelper.getDateCell(cell, sheetName, rowNumber, columnNumber, e -> {
+        Date actual = hssfHelper.getDateCell(cell, new Locator(sheetName, rowNumber, columnNumber), e -> {
             throw e;
         });
 
