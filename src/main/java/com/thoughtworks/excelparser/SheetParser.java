@@ -24,11 +24,9 @@ import java.util.function.Consumer;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SheetParser {
-    HSSFHelper hssfHelper;
     Map<String, Map<Integer, Field>> excelMapCache;
 
     public SheetParser() {
-        hssfHelper = new HSSFHelper();
         excelMapCache = new HashMap<>();
     }
 
@@ -105,11 +103,9 @@ public class SheetParser {
             Field field = excelPositionMap.get(position);
             Object cellValue;
             if (ParseType.ROW == parseType) {
-                cellValue = hssfHelper.getCellValue(sheet, sheetName, field.getType(), currentLocation, position,
-                        zeroIfNull, errorHandler);
+                cellValue = HSSFHelper.getCellValue(sheet, sheetName, field.getType(), currentLocation, position, zeroIfNull, errorHandler);
             } else {
-                cellValue = hssfHelper.getCellValue(sheet, sheetName, field.getType(), position, currentLocation,
-                        zeroIfNull, errorHandler);
+                cellValue = HSSFHelper.getCellValue(sheet, sheetName, field.getType(), position, currentLocation, zeroIfNull, errorHandler);
             }
             setFieldValue(field, object, cellValue);
         }
