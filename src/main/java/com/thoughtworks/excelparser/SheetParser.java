@@ -114,7 +114,7 @@ public class SheetParser {
             constructor.setAccessible(true);
             object = constructor.newInstance();
         } catch (Exception e) {
-            errorHandler.accept(new ExcelParsingException("Exception occured while instantiating the class " + clazz.getName(), e));
+            errorHandler.accept(new ExcelParsingException("Exception occurred while instantiating the class " + clazz.getName(), e));
             return null;
         }
         return object;
@@ -124,7 +124,7 @@ public class SheetParser {
         try {
             field.set(object, cellValue);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            throw new ExcelParsingException("Exception occured while setting field value ", e);
+            throw new ExcelParsingException("Exception occurred while setting field value ", e);
         }
     }
 
