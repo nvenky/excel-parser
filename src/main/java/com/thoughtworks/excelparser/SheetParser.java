@@ -53,6 +53,10 @@ public class SheetParser {
         return list;
     }
 
+    /**
+     * @deprecated Pass an error handler lambda instead (see other signature)
+     */
+    @Deprecated
     public <T> List<T> createEntity(Sheet sheet, String sheetName, Class<T> clazz) throws ExcelParsingException {
         return createEntity(sheet, sheetName, clazz, error -> {
             throw error;
