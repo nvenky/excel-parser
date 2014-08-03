@@ -16,20 +16,20 @@ import static java.text.MessageFormat.format;
 public class HSSFHelper {
 
     @SuppressWarnings("unchecked")
-    public static <T> T getCellValue(Sheet sheet, String sheetName, Class<T> type, Integer row, Integer col, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler) {
+    public static <T> T getCellValue(Sheet sheet, Class<T> type, Integer row, Integer col, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler) {
         Cell cell = getCell(sheet, row, col);
         if (type.equals(String.class)) {
             return cell == null ? null : (T) getStringCell(cell, errorHandler);
         } else if (type.equals(Date.class)) {
-            return cell == null ? null : (T) getDateCell(cell, new Locator(sheetName, row, col), errorHandler);
+            return cell == null ? null : (T) getDateCell(cell, new Locator(sheet.getSheetName(), row, col), errorHandler);
         }
 
         if (type.equals(Integer.class)) {
-            return (T) getIntegerCell(cell, zeroIfNull, new Locator(sheetName, row, col), errorHandler);
+            return (T) getIntegerCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
         } else if (type.equals(Double.class)) {
-            return (T) getDoubleCell(cell, zeroIfNull, new Locator(sheetName, row, col), errorHandler);
+            return (T) getDoubleCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
         } else if (type.equals(Long.class)) {
-            return (T) getLongCell(cell, zeroIfNull, new Locator(sheetName, row, col), errorHandler);
+            return (T) getLongCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
         }
 
         errorHandler.accept(new ExcelParsingException(format("{0} data type not supported for parsing", type.getName())));

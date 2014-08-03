@@ -44,7 +44,7 @@ public class SheetParserTest {
         List<ExcelParsingException> errors = new ArrayList<>();
         SheetParser parser = new SheetParser();
 
-        List<Section> entityList = parser.createEntity(openSheet("Errors.xlsx"), "Sheet1", Section.class, errors::add);
+        List<Section> entityList = parser.createEntity(openSheet("Errors.xlsx"), Section.class, errors::add);
 
         assertThat(entityList.size(), is(1));
         Section section = entityList.get(0);
@@ -58,7 +58,7 @@ public class SheetParserTest {
 
     private void performTestUsing(Sheet sheet) {
         SheetParser parser = new SheetParser();
-        List<Section> entityList = parser.createEntity(sheet, "Sheet1", Section.class, error -> { throw error; });
+        List<Section> entityList = parser.createEntity(sheet, Section.class, error -> { throw error; });
         assertThat(entityList.size(), is(1));
         Section section = entityList.get(0);
         assertThat(section.getYear(), is("IV"));
