@@ -14,24 +14,8 @@ import java.util.function.Consumer;
 
 public class HSSFHelper {
 
-    /**
-     * Returns the cell value. Supports Integer, Double, Long, String, Date.
-     *
-     * @param sheet      HSSF Sheet.
-     * @param sheetName  Sheet name.
-     * @param type       Class (Integer, Double, etc.)
-     * @param row        Row number (Same as excelsheet). API will reduce -1 and invoke
-     *                   POI API.
-     * @param col        Column number (Same as excelsheet). API will reduce -1 and
-     *                   invoke POI API.
-     * @param zeroIfNull whether Zero should be returned for Number fields when data is
-     *                   not found in excel.
-     * @return Class.
-     * @throws ExcelParsingException
-     */
     @SuppressWarnings("unchecked")
-    public static <T> T getCellValue(Sheet sheet, String sheetName, Class<T> type, Integer row, Integer col, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler)
-            throws ExcelParsingException {
+    public static <T> T getCellValue(Sheet sheet, String sheetName, Class<T> type, Integer row, Integer col, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler) {
         Cell cell = getCell(sheet, row, col);
         if (type.equals(String.class)) {
             return cell == null ? null : (T) getStringCell(cell, errorHandler);
@@ -49,22 +33,11 @@ public class HSSFHelper {
         throw new ExcelParsingException(getErrorMessage("{0} Data type not supported for parsing", type.getName()));
     }
 
-    /**
-     * Gets the cell in a sheet in the given row and column.
-     */
     static Cell getCell(Sheet sheet, int rowNumber, int columnNumber) {
         Row row = sheet.getRow(rowNumber - 1);
         return row == null ? null : row.getCell(columnNumber - 1);
     }
 
-    /**
-     * Gets the value of string in the cell.
-     *
-     * @param cell TODO
-     * @return date present in the given cell.
-     * @throws ExcelParsingException if the cell is of wrong type or the given location of cell is
-     *                               invalid.
-     */
     static String getStringCell(Cell cell, Consumer<ExcelParsingException> errorHandler) {
         if (cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
             int type = cell.getCachedFormulaResultType();
@@ -87,9 +60,6 @@ public class HSSFHelper {
         return df.format(cell.getNumericCellValue());
     }
 
-    /**
-     * Gets the value of date cell.
-     */
     static Date getDateCell(Cell cell, Locator position, Consumer<ExcelParsingException> errorHandler) {
         try {
             if (!HSSFDateUtil.isCellDateFormatted(cell)) {
@@ -102,15 +72,11 @@ public class HSSFHelper {
         return null;
     }
 
-    /**
-     * @param errorMessage     Error Message.
-     * @param errorMessageArgs arguments.
-     */
     private static String getErrorMessage(String errorMessage, Object... errorMessageArgs) {
         return MessageFormat.format(errorMessage, errorMessageArgs);
     }
 
-    static Double getDoubleCell(Cell cell, boolean zeroIfNull, Object... errorMessageArgs) throws ExcelParsingException {
+    static Double getDoubleCell(Cell cell, boolean zeroIfNull, Object... errorMessageArgs) {
         if (cell == null) {
             return zeroIfNull ? 0d : null;
         }
@@ -126,12 +92,12 @@ public class HSSFHelper {
         }
     }
 
-    static Long getLongCell(Cell cell, boolean zeroIfNull, Object... errorMessageArgs) throws ExcelParsingException {
+    static Long getLongCell(Cell cell, boolean zeroIfNull, Object... errorMessageArgs) {
         Double doubleValue = getNumberWithoutDecimals(cell, zeroIfNull, errorMessageArgs);
         return doubleValue == null ? null : doubleValue.longValue();
     }
 
-    static Integer getIntegerCell(Cell cell, boolean zeroIfNull, Object... errorMessageArgs) throws ExcelParsingException {
+    static Integer getIntegerCell(Cell cell, boolean zeroIfNull, Object... errorMessageArgs) {
         Double doubleValue = getNumberWithoutDecimals(cell, zeroIfNull, errorMessageArgs);
         return doubleValue == null ? null : doubleValue.intValue();
     }
