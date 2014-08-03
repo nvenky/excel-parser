@@ -30,7 +30,7 @@ public class SheetParser {
 
     public <T> List<T> createEntity(Sheet sheet, String sheetName, Class<T> clazz, Consumer<ExcelParsingException> errorHandler) {
         List<T> list = new ArrayList<>();
-        ExcelObject excelObject = getExcelObject(clazz);
+        ExcelObject excelObject = getExcelObject(clazz, errorHandler);
         for (int currentLocation = excelObject.start(); currentLocation <= excelObject.end(); currentLocation++) {
             T object = getNewInstance(sheet, sheetName, clazz, excelObject.parseType(), currentLocation, excelObject.zeroIfNull(), errorHandler);
             List<Field> mappedExcelFields = getMappedExcelObjects(clazz);
@@ -82,16 +82,16 @@ public class SheetParser {
         return fieldList;
     }
 
-    private <T> ExcelObject getExcelObject(Class<T> clazz) {
+    private <T> ExcelObject getExcelObject(Class<T> clazz, Consumer<ExcelParsingException> errorHandler) {
         ExcelObject excelObject = clazz.getAnnotation(ExcelObject.class);
         if (excelObject == null) {
-            throw new ExcelParsingException("Invalid class configuration - ExcelObject annotation missing - " + clazz.getSimpleName());
+            errorHandler.accept(new ExcelParsingException("Invalid class configuration - ExcelObject annotation missing - " + clazz.getSimpleName()));
         }
         return excelObject;
     }
 
     private <T> T getNewInstance(Sheet sheet, String sheetName, Class<T> clazz, ParseType parseType, Integer currentLocation, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler) {
-        T object = getInstance(clazz);
+        T object = getInstance(clazz, errorHandler);
         Map<Integer, Field> excelPositionMap = getExcelFieldPositionMap(clazz);
         for (Integer position : excelPositionMap.keySet()) {
             Field field = excelPositionMap.get(position);
@@ -107,14 +107,15 @@ public class SheetParser {
         return object;
     }
 
-    private <T> T getInstance(Class<T> clazz) {
+    private <T> T getInstance(Class<T> clazz, Consumer<ExcelParsingException> errorHandler) {
         T object;
         try {
             Constructor<T> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
             object = constructor.newInstance();
         } catch (Exception e) {
-            throw new ExcelParsingException("Exception occured while instantiating the class " + clazz.getName(), e);
+            errorHandler.accept(new ExcelParsingException("Exception occured while instantiating the class " + clazz.getName(), e));
+            return null;
         }
         return object;
     }
