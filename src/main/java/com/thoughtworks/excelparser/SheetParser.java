@@ -65,7 +65,7 @@ public class SheetParser {
     }
 
     private <T> List<Field> getMappedExcelObjects(Class<T> clazz) {
-        List<Field> fieldList = new ArrayList<Field>();
+        List<Field> fieldList = new ArrayList<>();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             MappedExcelObject mappedExcelObject = field.getAnnotation(MappedExcelObject.class);
