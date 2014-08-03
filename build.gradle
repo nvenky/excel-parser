@@ -20,7 +20,6 @@ repositories {
 
 dependencies {
     compile 'org.projectlombok:lombok:1.14.4'
-    compile 'org.slf4j:slf4j-api:1.7.7'
     compile 'org.apache.poi:poi-ooxml:3.10-FINAL'
 
     testCompile 'org.testng:testng:6.8.1'

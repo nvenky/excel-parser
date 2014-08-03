@@ -8,7 +8,6 @@ import com.thoughtworks.excelparser.exception.ExcelParsingException;
 import com.thoughtworks.excelparser.helper.HSSFHelper;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import java.lang.reflect.Constructor;
@@ -21,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SheetParser {
     Map<String, Map<Integer, Field>> excelMapCache;
@@ -116,7 +114,6 @@ public class SheetParser {
             constructor.setAccessible(true);
             object = constructor.newInstance();
         } catch (Exception e) {
-            log.error("Exception occured while instantiating the class {}", clazz.getName(), e);
             throw new ExcelParsingException("Exception occured while instantiating the class " + clazz.getName(), e);
         }
         return object;
@@ -126,7 +123,6 @@ public class SheetParser {
         try {
             field.set(object, cellValue);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            log.error(e.getMessage(), e);
             throw new ExcelParsingException("Exception occured while setting field value ", e);
         }
     }
