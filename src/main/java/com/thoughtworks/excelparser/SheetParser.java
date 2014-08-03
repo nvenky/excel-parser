@@ -22,11 +22,6 @@ import java.util.function.Consumer;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SheetParser {
-    Map<String, Map<Integer, Field>> excelMapCache;
-
-    public SheetParser() {
-        excelMapCache = new HashMap<>();
-    }
 
     public <T> List<T> createEntity(Sheet sheet, String sheetName, Class<T> clazz, Consumer<ExcelParsingException> errorHandler) {
         List<T> list = new ArrayList<>();
@@ -129,17 +124,6 @@ public class SheetParser {
     }
 
     private <T> Map<Integer, Field> getExcelFieldPositionMap(Class<T> clazz) {
-        Map<Integer, Field> existingMap = excelMapCache.get(clazz.getName());
-        return existingMap == null ? loadCache(clazz) : existingMap;
-    }
-
-    /**
-     * Load cached for the given class.
-     *
-     * @param clazz Class object to investigate.
-     * @return Map.
-     */
-    private <T> Map<Integer, Field> loadCache(Class<T> clazz) {
         Map<Integer, Field> fieldMap = new HashMap<>();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
@@ -149,7 +133,7 @@ public class SheetParser {
                 fieldMap.put(excelField.position(), field);
             }
         }
-        excelMapCache.put(clazz.getName(), fieldMap);
         return fieldMap;
     }
+
 }
