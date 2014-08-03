@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.function.Consumer;
@@ -18,22 +19,44 @@ public class HSSFHelper {
     @SuppressWarnings("unchecked")
     public static <T> T getCellValue(Sheet sheet, Class<T> type, Integer row, Integer col, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler) {
         Cell cell = getCell(sheet, row, col);
+
         if (type.equals(String.class)) {
-            return cell == null ? null : (T) getStringCell(cell, errorHandler);
-        } else if (type.equals(Date.class)) {
+            return (T) getStringCell(cell, errorHandler);
+        }
+
+        if (type.equals(Date.class)) {
             return cell == null ? null : (T) getDateCell(cell, new Locator(sheet.getSheetName(), row, col), errorHandler);
         }
 
         if (type.equals(Integer.class)) {
             return (T) getIntegerCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
-        } else if (type.equals(Double.class)) {
+        }
+
+        if (type.equals(Double.class)) {
             return (T) getDoubleCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
-        } else if (type.equals(Long.class)) {
+        }
+
+        if (type.equals(Long.class)) {
             return (T) getLongCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
+        }
+
+        if (type.equals(BigDecimal.class)) {
+            return (T) getBigDecimalCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
         }
 
         errorHandler.accept(new ExcelParsingException(format("{0} data type not supported for parsing", type.getName())));
         return null;
+    }
+
+    private static BigDecimal getBigDecimalCell(Cell cell, boolean zeroIfNull, Locator locator, Consumer<ExcelParsingException> errorHandler) {
+        Double val = getDoubleCell(cell, zeroIfNull, locator, errorHandler);
+        if(val == null) {
+            if(zeroIfNull) {
+                return BigDecimal.ZERO;
+            }
+            return null;
+        }
+        return new BigDecimal(val);
     }
 
     static Cell getCell(Sheet sheet, int rowNumber, int columnNumber) {
@@ -42,23 +65,34 @@ public class HSSFHelper {
     }
 
     static String getStringCell(Cell cell, Consumer<ExcelParsingException> errorHandler) {
+        if (cell == null) {
+            return null;
+        }
+
         if (cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
             int type = cell.getCachedFormulaResultType();
-            switch (type) {
-                case HSSFCell.CELL_TYPE_NUMERIC:
-                    DecimalFormat df = new DecimalFormat("###.#");
-                    return df.format(cell.getNumericCellValue());
-                case HSSFCell.CELL_TYPE_ERROR:
-                    return "";
-                case HSSFCell.CELL_TYPE_STRING:
-                    return cell.getRichStringCellValue().getString().trim();
-                case HSSFCell.CELL_TYPE_BOOLEAN:
-                    return "" + cell.getBooleanCellValue();
 
+            if (type == HSSFCell.CELL_TYPE_NUMERIC) {
+                DecimalFormat df = new DecimalFormat("###.#");
+                return df.format(cell.getNumericCellValue());
             }
+
+            if (type == HSSFCell.CELL_TYPE_ERROR) {
+                return "";
+            }
+
+            if (type == HSSFCell.CELL_TYPE_STRING) {
+                return cell.getRichStringCellValue().getString().trim();
+            }
+
+            if (type == HSSFCell.CELL_TYPE_BOOLEAN) {
+                return "" + cell.getBooleanCellValue();
+            }
+
         } else if (cell.getCellType() != HSSFCell.CELL_TYPE_NUMERIC) {
             return cell.getRichStringCellValue().getString().trim();
         }
+
         DecimalFormat df = new DecimalFormat("###.#");
         return df.format(cell.getNumericCellValue());
     }
@@ -84,15 +118,15 @@ public class HSSFHelper {
             return zeroIfNull ? 0d : null;
         }
 
-        switch (cell.getCellType()) {
-            case HSSFCell.CELL_TYPE_NUMERIC:
-            case HSSFCell.CELL_TYPE_FORMULA:
-                return cell.getNumericCellValue();
-            case HSSFCell.CELL_TYPE_BLANK:
-                return zeroIfNull ? 0d : null;
-            default:
-                errorHandler.accept(new ExcelParsingException(getErrorMessage("Invalid number found in sheet {0} at row {1}, column {2}", locator)));
+        if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC || cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
+            return cell.getNumericCellValue();
         }
+
+        if (cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+            return zeroIfNull ? 0d : null;
+        }
+
+        errorHandler.accept(new ExcelParsingException(getErrorMessage("Invalid number found in sheet {0} at row {1}, column {2}", locator)));
         return null;
     }
 

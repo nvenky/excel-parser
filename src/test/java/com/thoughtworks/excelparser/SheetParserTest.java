@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -74,7 +75,7 @@ public class SheetParserTest {
         assertThat(section.getStudents().get(0).getFatherName(), is("A"));
         assertThat("D", section.getStudents().get(0).getMotherName(), is("D"));
         assertThat("XYZ", section.getStudents().get(0).getAddress(), is("XYZ"));
-        assertThat(section.getStudents().get(0).getTotalScore(), is(nullValue(Double.class)));
+        assertThat(section.getStudents().get(0).getTotalScore(), is(nullValue(BigDecimal.class)));
     }
 
     private Sheet openSheet(String fileName) throws IOException {

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Value
@@ -35,7 +36,7 @@ public class Student {
     String address;
 
     @ExcelField(position = 8)
-    Double totalScore;
+    BigDecimal totalScore;
 
     @SuppressWarnings("UnusedDeclaration")
     private Student() {
