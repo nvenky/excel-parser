@@ -70,16 +70,16 @@ public class HSSFHelperTest {
 
     @Test
     public void testShouldReturnValidNumericValue() throws ExcelParsingException {
-        assertThat(hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 1), false, sheetName, 6, 1), is(1));
-        assertThat(hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 8), true, sheetName, 6, 8), is(0));
-        assertThat(hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 8), false, sheetName, 6, 8), is(nullValue()));
+        assertThat(hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 1), false, new Locator(sheetName, 6, 1), e -> { throw e; }), is(1));
+        assertThat(hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 8), true, new Locator(sheetName, 6, 8),e -> { throw e; }), is(0));
+        assertThat(hssfHelper.getIntegerCell(hssfHelper.getCell(sheet, 6, 8), false, new Locator(sheetName, 6, 8), e -> { throw e; }), is(nullValue()));
 
-        assertThat(hssfHelper.getLongCell(hssfHelper.getCell(sheet, 6, 2), false, sheetName, 6, 2), is(2001L));
-        assertThat(hssfHelper.getLongCell(hssfHelper.getCell(sheet, 10, 2), true, sheetName, 10, 2), is(0L));
-        assertThat(hssfHelper.getLongCell(hssfHelper.getCell(sheet, 10, 2), false, sheetName, 10, 2), is(nullValue()));
+        assertThat(hssfHelper.getLongCell(hssfHelper.getCell(sheet, 6, 2), false, new Locator(sheetName, 6, 2), e -> { throw e; }), is(2001L));
+        assertThat(hssfHelper.getLongCell(hssfHelper.getCell(sheet, 10, 2), true, new Locator(sheetName, 10, 2), e -> { throw e; }), is(0L));
+        assertThat(hssfHelper.getLongCell(hssfHelper.getCell(sheet, 10, 2), false, new Locator(sheetName, 10, 2), e -> { throw e; }), is(nullValue(Long.class)));
 
-        assertThat(hssfHelper.getDoubleCell(hssfHelper.getCell(sheet, 7, 8), false, sheetName, 7, 8), is(450.3d));
-        assertThat(hssfHelper.getDoubleCell(hssfHelper.getCell(sheet, 8, 8), false, sheetName, 8, 8), is(300d));
+        assertThat(hssfHelper.getDoubleCell(hssfHelper.getCell(sheet, 7, 8), false, new Locator(sheetName, 7, 8), e -> { throw e; }), is(450.3d));
+        assertThat(hssfHelper.getDoubleCell(hssfHelper.getCell(sheet, 8, 8), false, new Locator(sheetName, 8, 8), e -> { throw e; }), is(300d));
     }
 
 }
