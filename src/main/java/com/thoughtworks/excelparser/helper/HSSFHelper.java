@@ -100,17 +100,13 @@ public class HSSFHelper {
     static Date getDateCell(Cell cell, Locator locator, Consumer<ExcelParsingException> errorHandler) {
         try {
             if (!HSSFDateUtil.isCellDateFormatted(cell)) {
-                errorHandler.accept(new ExcelParsingException(getErrorMessage("Invalid date found in sheet {0} at row {1}, column {2}", locator)));
+                errorHandler.accept(new ExcelParsingException(format("Invalid date found in sheet {0} at row {1}, column {2}", locator.getSheetName(), locator.getRow(), locator.getCol())));
             }
             return HSSFDateUtil.getJavaDate(cell.getNumericCellValue());
         } catch (IllegalStateException illegalStateException) {
-            errorHandler.accept(new ExcelParsingException(getErrorMessage("Invalid date found in sheet {0} at row {1}, column {2}", locator)));
+            errorHandler.accept(new ExcelParsingException(format("Invalid date found in sheet {0} at row {1}, column {2}", locator.getSheetName(), locator.getRow(), locator.getCol())));
         }
         return null;
-    }
-
-    private static String getErrorMessage(String errorMessage, Locator locator) {
-        return format(errorMessage, locator.getSheetName(), locator.getRow(), locator.getCol());
     }
 
     static Double getDoubleCell(Cell cell, boolean zeroIfNull, Locator locator, Consumer<ExcelParsingException> errorHandler) {
@@ -126,7 +122,7 @@ public class HSSFHelper {
             return zeroIfNull ? 0d : null;
         }
 
-        errorHandler.accept(new ExcelParsingException(getErrorMessage("Invalid number found in sheet {0} at row {1}, column {2}", locator)));
+        errorHandler.accept(new ExcelParsingException(format("Invalid number found in sheet {0} at row {1}, column {2}", locator.getSheetName(), locator.getRow(), locator.getCol())));
         return null;
     }
 
@@ -143,7 +139,7 @@ public class HSSFHelper {
     private static Double getNumberWithoutDecimals(Cell cell, boolean zeroIfNull, Locator locator, Consumer<ExcelParsingException> errorHandler) {
         Double doubleValue = getDoubleCell(cell, zeroIfNull, locator, errorHandler);
         if (doubleValue != null && doubleValue % 1 != 0) {
-            errorHandler.accept(new ExcelParsingException(getErrorMessage("Invalid number found in sheet {0} at row {1}, column {2}", locator)));
+            errorHandler.accept(new ExcelParsingException(format("Invalid number found in sheet {0} at row {1}, column {2}", locator.getSheetName(), locator.getRow(), locator.getCol())));
         }
         return doubleValue;
     }
