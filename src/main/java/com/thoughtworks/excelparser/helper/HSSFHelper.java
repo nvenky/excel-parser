@@ -9,6 +9,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.function.Consumer;
 
@@ -28,6 +32,14 @@ public class HSSFHelper {
             return cell == null ? null : (T) getDateCell(cell, new Locator(sheet.getSheetName(), row, col), errorHandler);
         }
 
+        if (type.equals(LocalDate.class)) {
+            return cell == null ? null : (T) getLocalDateCell(cell, new Locator(sheet.getSheetName(), row, col), errorHandler);
+        }
+
+        if (type.equals(LocalDateTime.class)) {
+            return cell == null ? null : (T) getLocalDateTimeCell(cell, new Locator(sheet.getSheetName(), row, col), errorHandler);
+        }
+
         if (type.equals(Integer.class)) {
             return (T) getIntegerCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
         }
@@ -45,6 +57,37 @@ public class HSSFHelper {
         }
 
         errorHandler.accept(new ExcelParsingException(format("{0} data type not supported for parsing", type.getName())));
+        return null;
+    }
+
+    private static LocalDate getLocalDateCell(Cell cell, Locator locator, Consumer<ExcelParsingException> errorHandler) {
+        try {
+            if (!HSSFDateUtil.isCellDateFormatted(cell)) {
+                errorHandler.accept(new ExcelParsingException(format("Invalid date found in sheet {0} at row {1}, column {2}", locator.getSheetName(), locator.getRow(), locator.getCol())));
+            }
+
+            Instant instant = Instant.ofEpochMilli((long) cell.getNumericCellValue());
+            LocalDateTime res = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+            return res.toLocalDate();
+
+        } catch (IllegalStateException illegalStateException) {
+            errorHandler.accept(new ExcelParsingException(format("Invalid date found in sheet {0} at row {1}, column {2}", locator.getSheetName(), locator.getRow(), locator.getCol())));
+        }
+        return null;
+    }
+
+    private static LocalDateTime getLocalDateTimeCell(Cell cell, Locator locator, Consumer<ExcelParsingException> errorHandler) {
+        try {
+            if (!HSSFDateUtil.isCellDateFormatted(cell)) {
+                errorHandler.accept(new ExcelParsingException(format("Invalid date found in sheet {0} at row {1}, column {2}", locator.getSheetName(), locator.getRow(), locator.getCol())));
+            }
+
+            Instant instant = Instant.ofEpochMilli((long) cell.getNumericCellValue());
+            return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+
+        } catch (IllegalStateException illegalStateException) {
+            errorHandler.accept(new ExcelParsingException(format("Invalid date found in sheet {0} at row {1}, column {2}", locator.getSheetName(), locator.getRow(), locator.getCol())));
+        }
         return null;
     }
 
