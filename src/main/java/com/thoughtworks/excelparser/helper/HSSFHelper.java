@@ -66,7 +66,7 @@ public class HSSFHelper {
                 errorHandler.accept(new ExcelParsingException(format("Invalid date found in sheet {0} at row {1}, column {2}", locator.getSheetName(), locator.getRow(), locator.getCol())));
             }
 
-            Instant instant = Instant.ofEpochMilli((long) cell.getNumericCellValue());
+            Instant instant = Instant.ofEpochMilli(HSSFDateUtil.getJavaDate(cell.getNumericCellValue()).getTime());
             LocalDateTime res = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
             return res.toLocalDate();
 
@@ -82,7 +82,7 @@ public class HSSFHelper {
                 errorHandler.accept(new ExcelParsingException(format("Invalid date found in sheet {0} at row {1}, column {2}", locator.getSheetName(), locator.getRow(), locator.getCol())));
             }
 
-            Instant instant = Instant.ofEpochMilli((long) cell.getNumericCellValue());
+            Instant instant = Instant.ofEpochMilli(HSSFDateUtil.getJavaDate(cell.getNumericCellValue()).getTime());
             return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
 
         } catch (IllegalStateException illegalStateException) {

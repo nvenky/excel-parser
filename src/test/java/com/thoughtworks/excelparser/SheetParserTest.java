@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -76,6 +78,8 @@ public class SheetParserTest {
         assertThat("D", section.getStudents().get(0).getMotherName(), is("D"));
         assertThat("XYZ", section.getStudents().get(0).getAddress(), is("XYZ"));
         assertThat(section.getStudents().get(0).getTotalScore(), is(nullValue(BigDecimal.class)));
+        assertThat(section.getStudents().get(0).getAdmissionDate(), is(LocalDate.of(2002, 10, 10)));
+        assertThat(section.getStudents().get(0).getAdmissionDateTime(), is(LocalDateTime.of(2002, 10, 10, 9, 0, 0)));
     }
 
     private Sheet openSheet(String fileName) throws IOException {
