@@ -92,8 +92,8 @@ public class HSSFHelper {
     }
 
     private static BigDecimal getBigDecimalCell(Cell cell, boolean zeroIfNull, Locator locator, Consumer<ExcelParsingException> errorHandler) {
-        Double val = getDoubleCell(cell, zeroIfNull, locator, errorHandler);
-        if(val == null) {
+        String val = getStringCell(cell, errorHandler);
+        if(val == null || val.trim().equals("")) {
             if(zeroIfNull) {
                 return BigDecimal.ZERO;
             }
