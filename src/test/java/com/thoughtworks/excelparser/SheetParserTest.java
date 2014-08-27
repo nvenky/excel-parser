@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static java.math.BigDecimal.ROUND_FLOOR;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -80,6 +81,16 @@ public class SheetParserTest {
         assertThat(section.getStudents().get(0).getTotalScore(), is(nullValue(BigDecimal.class)));
         assertThat(section.getStudents().get(0).getAdmissionDate(), is(LocalDate.of(2002, 10, 10)));
         assertThat(section.getStudents().get(0).getAdmissionDateTime(), is(LocalDateTime.of(2002, 10, 10, 9, 0, 0)));
+
+        assertThat(section.getStudents().get(1).getRoleNumber(), is(2002L));
+        assertThat(section.getStudents().get(1).getName(), is("Even"));
+        assertThat(simpleDateFormat.format(section.getStudents().get(1).getDateOfBirth()), is("05/01/2002"));
+        assertThat(section.getStudents().get(1).getFatherName(), is("B"));
+        assertThat("D", section.getStudents().get(1).getMotherName(), is("E"));
+        assertThat("XYZ", section.getStudents().get(1).getAddress(), is("ABX"));
+        assertThat(section.getStudents().get(1).getTotalScore().setScale(2, ROUND_FLOOR), is(new BigDecimal("450.30")));
+        assertThat(section.getStudents().get(1).getAdmissionDate(), is(LocalDate.of(2002, 10, 11)));
+        assertThat(section.getStudents().get(1).getAdmissionDateTime(), is(LocalDateTime.of(2002, 10, 11, 10, 0, 0)));
     }
 
     private Sheet openSheet(String fileName) throws IOException {
