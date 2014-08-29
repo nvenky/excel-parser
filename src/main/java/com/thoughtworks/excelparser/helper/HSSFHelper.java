@@ -99,7 +99,16 @@ public class HSSFHelper {
             }
             return null;
         }
-        return new BigDecimal(val);
+        try {
+            return new BigDecimal(val);
+        } catch (NumberFormatException e) {
+            errorHandler.accept(new ExcelParsingException(format("Invalid number found in sheet {0} at row {1}, column {2}", locator.getSheetName(), locator.getRow(), locator.getCol())));
+        }
+
+        if (zeroIfNull) {
+            return BigDecimal.ZERO;
+        }
+        return null;
     }
 
     static Cell getCell(Sheet sheet, int rowNumber, int columnNumber) {
