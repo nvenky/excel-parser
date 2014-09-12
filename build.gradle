@@ -6,7 +6,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'nexus-workflow'
 
-version = '1.0'
+version = '1.0.1'
 project.group = 'org.javafunk'
 archivesBaseName = "excel-parser"
 
