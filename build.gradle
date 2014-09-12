@@ -4,10 +4,20 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'nexus-workflow'
 
 version = '1.0'
 project.group = 'com.thoughtworks'
 archivesBaseName = "excel-parser"
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.adaptc.gradle:nexus-workflow:0.6'
+    }
+}
 
 repositories {
     mavenLocal()
@@ -61,11 +71,15 @@ uploadArchives {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
+                authentication(
+                        userName: project.property("oss-releases.username"),
+                        password: project.property("oss-releases.password"))
             }
 
             snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
+                authentication(
+                        userName: project.property("oss-releases.username"),
+                        password: project.property("oss-releases.password"))
             }
 
             pom.project {
