@@ -1,8 +1,8 @@
-package com.thoughtworks.example.domain;
+package org.javafunk.example.domain;
 
-import com.thoughtworks.excelparser.annotations.ExcelField;
-import com.thoughtworks.excelparser.annotations.ExcelObject;
-import com.thoughtworks.excelparser.annotations.ParseType;
+import org.javafunk.excelparser.annotations.ExcelField;
+import org.javafunk.excelparser.annotations.ExcelObject;
+import org.javafunk.excelparser.annotations.ParseType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;

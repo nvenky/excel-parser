@@ -1,4 +1,4 @@
-package com.thoughtworks.excelparser.annotations;
+package org.javafunk.excelparser.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

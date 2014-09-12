@@ -1,6 +1,6 @@
-package com.thoughtworks.excelparser.helper;
+package org.javafunk.excelparser.helper;
 
-import com.thoughtworks.excelparser.exception.ExcelParsingException;
+import org.javafunk.excelparser.exception.ExcelParsingException;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;

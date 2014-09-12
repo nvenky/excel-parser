@@ -1,4 +1,4 @@
-package com.thoughtworks.excelparser.annotations;
+package org.javafunk.excelparser.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
-public @interface MappedExcelObject {
-
+public @interface ExcelField {
+    int position();
 }

@@ -1,4 +1,4 @@
-package com.thoughtworks.excelparser.exception;
+package org.javafunk.excelparser.exception;
 
 public class ExcelParsingException extends RuntimeException {
 

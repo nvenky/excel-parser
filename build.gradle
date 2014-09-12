@@ -7,7 +7,7 @@ apply plugin: 'signing'
 apply plugin: 'nexus-workflow'
 
 version = '1.0'
-project.group = 'com.thoughtworks'
+project.group = 'org.javafunk'
 archivesBaseName = "excel-parser"
 
 buildscript {

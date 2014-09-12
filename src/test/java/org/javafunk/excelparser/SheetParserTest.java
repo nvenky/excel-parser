@@ -1,7 +1,7 @@
-package com.thoughtworks.excelparser;
+package org.javafunk.excelparser;
 
-import com.thoughtworks.example.domain.Section;
-import com.thoughtworks.excelparser.exception.ExcelParsingException;
+import org.javafunk.example.domain.Section;
+import org.javafunk.excelparser.exception.ExcelParsingException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;

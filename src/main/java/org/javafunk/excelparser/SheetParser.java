@@ -1,11 +1,11 @@
-package com.thoughtworks.excelparser;
+package org.javafunk.excelparser;
 
-import com.thoughtworks.excelparser.annotations.ExcelField;
-import com.thoughtworks.excelparser.annotations.ExcelObject;
-import com.thoughtworks.excelparser.annotations.MappedExcelObject;
-import com.thoughtworks.excelparser.annotations.ParseType;
-import com.thoughtworks.excelparser.exception.ExcelParsingException;
-import com.thoughtworks.excelparser.helper.HSSFHelper;
+import org.javafunk.excelparser.annotations.ExcelField;
+import org.javafunk.excelparser.annotations.ExcelObject;
+import org.javafunk.excelparser.annotations.MappedExcelObject;
+import org.javafunk.excelparser.annotations.ParseType;
+import org.javafunk.excelparser.exception.ExcelParsingException;
+import org.javafunk.excelparser.helper.HSSFHelper;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.apache.poi.ss.usermodel.Sheet;

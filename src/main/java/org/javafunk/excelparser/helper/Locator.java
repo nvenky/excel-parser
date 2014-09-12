@@ -1,4 +1,4 @@
-package com.thoughtworks.excelparser.helper;
+package org.javafunk.excelparser.helper;
 
 import lombok.Value;
 
