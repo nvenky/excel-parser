@@ -2,16 +2,12 @@ defaultTasks 'clean', 'check', 'jar'
 
 apply plugin: 'java'
 apply plugin: 'idea'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 version = '1.0'
-project.group = 'excel-parser'
-
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'Excel Parser', 'Implementation-Version': version
-    }
-}
+project.group = 'com.thoughtworks'
+archivesBaseName = "excel-parser"
 
 repositories {
     mavenLocal()
@@ -25,21 +21,80 @@ dependencies {
     testCompile 'org.testng:testng:6.8.1'
 }
 
+signing {
+    sign configurations.archives
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Excel Parser', 'Implementation-Version': version
+    }
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+    manifest {
+        attributes 'Implementation-Title': 'Excel Parser', 'Implementation-Version': version
+    }
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    manifest {
+        attributes 'Implementation-Title': 'Excel Parser', 'Implementation-Version': version
+    }
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
 uploadArchives {
     repositories {
         flatDir {
             dirs 'repos'
         }
-    }
-}
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId 'com.thoughtworks'
-            artifactId 'excel-parser'
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            from components.java
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+                name 'Excel Parser'
+                packaging 'jar'
+                description 'Annotations for Excel document parsing.'
+                url 'https://github.com/tobyclemson/excel-parser'
+
+                scm {
+                    connection 'scm:git:git://github.com/tobyclemson/excel-parser/'
+                    developerConnection 'scm:git:git://github.com/tobyclemson/excel-parser/'
+                    url 'https://github.com/tobyclemson/excel-parser'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'nvenky'
+                        name 'Venkatesh Nannan'
+                        email 'nvenky@gmail.com'
+                    }
+                }
+            }
         }
     }
 }

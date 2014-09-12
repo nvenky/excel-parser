@@ -7,3 +7,5 @@ excel-parser.iml
 excel-parser.ipr
 excel-parser.iws
 out
+repos
+gradle.properties
