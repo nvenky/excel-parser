@@ -86,12 +86,12 @@ uploadArchives {
                 name 'Excel Parser'
                 packaging 'jar'
                 description 'Annotations for Excel document parsing.'
-                url 'https://github.com/tobyclemson/excel-parser'
+                url 'https://github.com/nvenky/excel-parser'
 
                 scm {
-                    connection 'scm:git:git://github.com/tobyclemson/excel-parser/'
-                    developerConnection 'scm:git:git://github.com/tobyclemson/excel-parser/'
-                    url 'https://github.com/tobyclemson/excel-parser'
+                    connection 'scm:git:git://github.com/nvenky/excel-parser/'
+                    developerConnection 'scm:git:git://github.com/nvenky/excel-parser/'
+                    url 'https://github.com/nvenky/excel-parser'
                 }
 
                 licenses {
