@@ -3,6 +3,8 @@
 
 # Excel Parser Examples
 
+[![Join the chat at https://gitter.im/nvenky/excel-parser](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nvenky/excel-parser?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 
 HSSF - Horrible Spreadsheet Format – not anymore. With few annotations, excel parsing can be done in one line.
 
