@@ -37,7 +37,7 @@ public @interface ExcelObject {
      *
      * @return int.
      */
-    int end();
+    int end() default 0;
 
     /**
      * Setting this field to true will return Zero for Number fields (Double,
