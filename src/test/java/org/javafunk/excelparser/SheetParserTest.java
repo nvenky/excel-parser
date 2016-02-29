@@ -1,7 +1,10 @@
 package org.javafunk.excelparser;
 
 import org.javafunk.example.domain.Section;
+import org.javafunk.example.domain.Student;
+import org.javafunk.example.domain.Subject;
 import org.javafunk.excelparser.exception.ExcelParsingException;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -22,6 +25,7 @@ import java.util.List;
 import static java.math.BigDecimal.ROUND_FLOOR;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class SheetParserTest {
@@ -91,6 +95,31 @@ public class SheetParserTest {
         assertThat(section.getStudents().get(1).getTotalScore().setScale(2, ROUND_FLOOR), is(new BigDecimal("450.30")));
         assertThat(section.getStudents().get(1).getAdmissionDate(), is(LocalDate.of(2002, 10, 11)));
         assertThat(section.getStudents().get(1).getAdmissionDateTime(), is(LocalDateTime.of(2002, 10, 11, 10, 0, 0)));
+    }
+
+    @Test
+    public void shouldParseRowOrCoulmnEnd() throws IOException {
+        Sheet sheet = openSheet("Student Profile.xlsx");
+        SheetParser parser = new SheetParser();
+
+        int end = parser.getRowOrColumnEnd(sheet, Section.class);
+        assertEquals(end, 2);
+
+        int rowEnd = parser.getRowOrColumnEnd(sheet, Student.class);
+        assertEquals(rowEnd, 8);
+    }
+
+    @Test
+    public void shouldCalculateEnd() throws IOException {
+        Sheet sheet = openSheet("Subjects.xlsx");
+        SheetParser parser = new SheetParser();
+
+        List<Subject> subjects = parser.createEntity(sheet, Subject.class, error -> { throw error; });
+        Subject lastSubject = subjects.get(subjects.size() - 1);
+
+        assertThat(lastSubject.getCode(), is("GE-101"));
+        assertThat(lastSubject.getName(), is("Geography"));
+        assertThat(lastSubject.getVolume(), is(7));
     }
 
     private Sheet openSheet(String fileName) throws IOException {

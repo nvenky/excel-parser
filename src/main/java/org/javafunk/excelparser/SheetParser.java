@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
+import java.util.Set;
 import java.util.function.Consumer;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -26,8 +28,14 @@ public class SheetParser {
     public <T> List<T> createEntity(Sheet sheet, Class<T> clazz, Consumer<ExcelParsingException> errorHandler) {
         List<T> list = new ArrayList<>();
         ExcelObject excelObject = getExcelObject(clazz, errorHandler);
-        for (int currentLocation = excelObject.start(); currentLocation <= excelObject.end(); currentLocation++) {
-            T object = getNewInstance(sheet, clazz, excelObject.parseType(), currentLocation, excelObject.zeroIfNull(), errorHandler);
+        if (excelObject.start() <= 0 || excelObject.end() < 0) {
+            return list;
+        }
+        int end = getEnd(sheet, clazz, excelObject);
+
+        for (int currentLocation = excelObject.start(); currentLocation <= end; currentLocation++) {
+            T object = getNewInstance(sheet, clazz, excelObject.parseType(), currentLocation, excelObject.zeroIfNull(),
+                    errorHandler);
             List<Field> mappedExcelFields = getMappedExcelObjects(clazz);
             for (Field mappedField : mappedExcelFields) {
                 Class<?> fieldType = mappedField.getType();
@@ -44,6 +52,14 @@ public class SheetParser {
         return list;
     }
 
+    private <T> int getEnd(Sheet sheet, Class<T> clazz, ExcelObject excelObject) {
+        int end = excelObject.end();
+        if (end > 0) {
+            return end;
+        }
+        return getRowOrColumnEnd(sheet, clazz);
+    }
+
     /**
      * @deprecated Pass an error handler lambda instead (see other signature)
      */
@@ -52,6 +68,29 @@ public class SheetParser {
         return createEntity(sheet, clazz, error -> {
             throw error;
         });
+    }
+
+    public <T> int getRowOrColumnEnd(Sheet sheet, Class<T> clazz) {
+        ExcelObject excelObject = getExcelObject(clazz, e -> {
+            throw e;
+        });
+        ParseType parseType = excelObject.parseType();
+        if (parseType == ParseType.ROW) {
+            return sheet.getLastRowNum() + 1;
+        }
+
+        Set<Integer> positions = getExcelFieldPositionMap(clazz).keySet();
+        OptionalInt maxPosition = positions.stream().mapToInt((x) -> x).max();
+        OptionalInt minPosition = positions.stream().mapToInt((x) -> x).min();
+
+        int maxCellNumber = 0;
+        for (int i = minPosition.getAsInt(); i < maxPosition.getAsInt(); i++) {
+            int cellsNumber = sheet.getRow(i).getLastCellNum();
+            if (maxCellNumber < cellsNumber) {
+                maxCellNumber = cellsNumber;
+            }
+        }
+        return maxCellNumber;
     }
 
     private Class<?> getFieldType(Field field) {
