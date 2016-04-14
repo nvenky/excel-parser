@@ -9,4 +9,11 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 public @interface ExcelField {
     int position();
+    enum ValidationType
+    {
+        SOFT, HARD
+    }
+    ValidationType validationType() default  ValidationType.SOFT;
+    boolean validate() default false;
+    String  regex() default ".*";
 }
