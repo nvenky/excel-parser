@@ -76,7 +76,7 @@ public class HSSFHelperTest {
         assertThat(HSSFHelper.getLongCell(HSSFHelper.getCell(sheet, 10, 2), true, new Locator(sheetName, 10, 2), e -> { throw e; }), is(0L));
         assertThat(HSSFHelper.getLongCell(HSSFHelper.getCell(sheet, 10, 2), false, new Locator(sheetName, 10, 2), e -> { throw e; }), is(nullValue(Long.class)));
 
-        assertThat(HSSFHelper.getDoubleCell(HSSFHelper.getCell(sheet, 7, 8), false, new Locator(sheetName, 7, 8), e -> { throw e; }), is(450.3d));
+        assertThat(HSSFHelper.getDoubleCell(HSSFHelper.getCell(sheet, 7, 8), false, new Locator(sheetName, 7, 8), e -> { throw e; }), is(450.35d));
         assertThat(HSSFHelper.getDoubleCell(HSSFHelper.getCell(sheet, 8, 8), false, new Locator(sheetName, 8, 8), e -> { throw e; }), is(300d));
     }
 
