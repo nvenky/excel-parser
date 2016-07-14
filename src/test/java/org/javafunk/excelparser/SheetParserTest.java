@@ -92,7 +92,7 @@ public class SheetParserTest {
         assertThat(section.getStudents().get(1).getFatherName(), is("B"));
         assertThat("D", section.getStudents().get(1).getMotherName(), is("E"));
         assertThat("XYZ", section.getStudents().get(1).getAddress(), is("ABX"));
-        assertThat(section.getStudents().get(1).getTotalScore().setScale(2, ROUND_FLOOR), is(new BigDecimal("450.30")));
+        assertThat(section.getStudents().get(1).getTotalScore().setScale(2, ROUND_FLOOR), is(new BigDecimal("450.35")));
         assertThat(section.getStudents().get(1).getAdmissionDate(), is(LocalDate.of(2002, 10, 11)));
         assertThat(section.getStudents().get(1).getAdmissionDateTime(), is(LocalDateTime.of(2002, 10, 11, 10, 0, 0)));
     }

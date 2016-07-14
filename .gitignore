@@ -8,3 +8,6 @@ excel-parser.ipr
 excel-parser.iws
 out
 repos
+/bin/
+.classpath
+.project

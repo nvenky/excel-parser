@@ -4,6 +4,8 @@ import org.javafunk.excelparser.exception.ExcelParsingException;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -19,6 +21,8 @@ import java.util.function.Consumer;
 import static java.text.MessageFormat.format;
 
 public class HSSFHelper {
+	
+	private static DataFormatter formatter = new DataFormatter();
 
     @SuppressWarnings("unchecked")
     public static <T> T getCellValue(Sheet sheet, Class<T> type, Integer row, Integer col, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler) {
@@ -125,8 +129,8 @@ public class HSSFHelper {
             int type = cell.getCachedFormulaResultType();
 
             if (type == HSSFCell.CELL_TYPE_NUMERIC) {
-                DecimalFormat df = new DecimalFormat("###.#");
-                return df.format(cell.getNumericCellValue());
+            	FormulaEvaluator fe = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator(); 
+            	return formatter.formatCellValue(cell, fe);
             }
 
             if (type == HSSFCell.CELL_TYPE_ERROR) {
@@ -145,8 +149,7 @@ public class HSSFHelper {
             return cell.getRichStringCellValue().getString().trim();
         }
 
-        DecimalFormat df = new DecimalFormat("###.#");
-        return df.format(cell.getNumericCellValue());
+        return formatter.formatCellValue(cell);
     }
 
     static Date getDateCell(Cell cell, Locator locator, Consumer<ExcelParsingException> errorHandler) {
