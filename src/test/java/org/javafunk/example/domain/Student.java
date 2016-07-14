@@ -19,7 +19,7 @@ import java.util.Date;
 @ExcelObject(parseType = ParseType.ROW, start = 6, end = 8)
 public class Student {
 
-    @ExcelField(position = 2)
+    @ExcelField(position = 2, validationType = ExcelField.ValidationType.HARD, regex = "[0-2][0-9][0-9][0-9]")
     Long roleNumber;
 
     @ExcelField(position = 3)

@@ -4,6 +4,8 @@ import org.javafunk.excelparser.annotations.ExcelField;
 import org.javafunk.excelparser.annotations.ExcelObject;
 import org.javafunk.excelparser.annotations.MappedExcelObject;
 import org.javafunk.excelparser.annotations.ParseType;
+import org.javafunk.excelparser.exception.ExcelInvalidCell;
+import org.javafunk.excelparser.exception.ExcelInvalidCellValuesException;
 import org.javafunk.excelparser.exception.ExcelParsingException;
 import org.javafunk.excelparser.helper.HSSFHelper;
 import lombok.AccessLevel;
@@ -21,9 +23,17 @@ import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SheetParser {
+    List<ExcelInvalidCell> excelInvalidCells;
+
+    public SheetParser()
+    {
+        excelInvalidCells = new ArrayList<>();
+    }
 
     public <T> List<T> createEntity(Sheet sheet, Class<T> clazz, Consumer<ExcelParsingException> errorHandler) {
         List<T> list = new ArrayList<>();
@@ -49,7 +59,7 @@ public class SheetParser {
             }
             list.add(object);
         }
-        return list;
+         return list;
     }
 
     private <T> int getEnd(Sheet sheet, Class<T> clazz, ExcelObject excelObject) {
@@ -130,10 +140,29 @@ public class SheetParser {
         for (Integer position : excelPositionMap.keySet()) {
             Field field = excelPositionMap.get(position);
             Object cellValue;
+            Object cellValueString;
             if (ParseType.ROW == parseType) {
                 cellValue = HSSFHelper.getCellValue(sheet, field.getType(), currentLocation, position, zeroIfNull, errorHandler);
+                cellValueString = HSSFHelper.getCellValue(sheet, String.class, currentLocation, position, zeroIfNull, errorHandler);
             } else {
                 cellValue = HSSFHelper.getCellValue(sheet, field.getType(), position, currentLocation, zeroIfNull, errorHandler);
+                cellValueString = HSSFHelper.getCellValue(sheet, String.class, position, currentLocation, zeroIfNull, errorHandler);
+            }
+            ExcelField annotation = field.getAnnotation(ExcelField.class);
+            if (annotation.validate())
+            {
+                Pattern pattern =  Pattern.compile(annotation.regex());
+                cellValueString = cellValueString != null ? cellValueString.toString() : "";
+                Matcher matcher = pattern.matcher((String)cellValueString);
+                if(!matcher.matches())
+                {
+                    ExcelInvalidCell excelInvalidCell = new ExcelInvalidCell(position,currentLocation, (String)cellValueString);
+                    excelInvalidCells.add(excelInvalidCell);
+                    if(annotation.validationType() == ExcelField.ValidationType.HARD)
+                    {
+                        throw new ExcelInvalidCellValuesException("Invalid cell value at [" + currentLocation + ", " + position + "] in the sheet. This exception can be suppressed by setting 'validationType' in @ExcelField to 'ValidationType.SOFT");
+                    }
+                }
             }
             setFieldValue(field, object, cellValue);
         }
