@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.function.Consumer;
 
 import static java.text.MessageFormat.format;
@@ -28,36 +29,48 @@ public class HSSFHelper {
     public static <T> T getCellValue(Sheet sheet, Class<T> type, Integer row, Integer col, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler) {
         Cell cell = getCell(sheet, row, col);
 
+        return validateAndParseValue(cell, sheet.getSheetName(), type, row, col, zeroIfNull, errorHandler);
+    }
+
+
+    public static <T> T getCellValue(Row row, String sheetName, Class<T> type, Integer rowIndex, Integer col, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler) {
+        Cell cell = row.getCell(col - 1);
+
+        return validateAndParseValue(cell, sheetName, type, rowIndex, col, zeroIfNull, errorHandler);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T validateAndParseValue(Cell cell, String sheetName, Class<T> type, Integer row, Integer col, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler) {
         if (type.equals(String.class)) {
             return (T) getStringCell(cell, errorHandler);
         }
 
         if (type.equals(Date.class)) {
-            return cell == null ? null : (T) getDateCell(cell, new Locator(sheet.getSheetName(), row, col), errorHandler);
+            return cell == null ? null : (T) getDateCell(cell, new Locator(sheetName, row, col), errorHandler);
         }
 
         if (type.equals(LocalDate.class)) {
-            return cell == null ? null : (T) getLocalDateCell(cell, new Locator(sheet.getSheetName(), row, col), errorHandler);
+            return cell == null ? null : (T) getLocalDateCell(cell, new Locator(sheetName, row, col), errorHandler);
         }
 
         if (type.equals(LocalDateTime.class)) {
-            return cell == null ? null : (T) getLocalDateTimeCell(cell, new Locator(sheet.getSheetName(), row, col), errorHandler);
+            return cell == null ? null : (T) getLocalDateTimeCell(cell, new Locator(sheetName, row, col), errorHandler);
         }
 
         if (type.equals(Integer.class)) {
-            return (T) getIntegerCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
+            return (T) getIntegerCell(cell, zeroIfNull, new Locator(sheetName, row, col), errorHandler);
         }
 
         if (type.equals(Double.class)) {
-            return (T) getDoubleCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
+            return (T) getDoubleCell(cell, zeroIfNull, new Locator(sheetName, row, col), errorHandler);
         }
 
         if (type.equals(Long.class)) {
-            return (T) getLongCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
+            return (T) getLongCell(cell, zeroIfNull, new Locator(sheetName, row, col), errorHandler);
         }
 
         if (type.equals(BigDecimal.class)) {
-            return (T) getBigDecimalCell(cell, zeroIfNull, new Locator(sheet.getSheetName(), row, col), errorHandler);
+            return (T) getBigDecimalCell(cell, zeroIfNull, new Locator(sheetName, row, col), errorHandler);
         }
 
         errorHandler.accept(new ExcelParsingException(format("{0} data type not supported for parsing", type.getName())));
@@ -118,6 +131,17 @@ public class HSSFHelper {
     static Cell getCell(Sheet sheet, int rowNumber, int columnNumber) {
         Row row = sheet.getRow(rowNumber - 1);
         return row == null ? null : row.getCell(columnNumber - 1);
+    }
+
+    public static Row getRow(Iterator<Row> iterator, int rowNumber) {
+        Row row;
+        while (iterator.hasNext()) {
+            row = iterator.next();
+            if (row.getRowNum() == rowNumber - 1) {
+                return row;
+            }
+        }
+        throw new RuntimeException("No Row with index: " + rowNumber + " was found");
     }
 
     static String getStringCell(Cell cell, Consumer<ExcelParsingException> errorHandler) {
