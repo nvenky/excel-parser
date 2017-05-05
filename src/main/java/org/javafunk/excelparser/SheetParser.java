@@ -1,5 +1,25 @@
 package org.javafunk.excelparser;
 
+import static org.javafunk.excelparser.helper.HSSFHelper.getRow;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalInt;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.javafunk.excelparser.annotations.ExcelField;
 import org.javafunk.excelparser.annotations.ExcelObject;
 import org.javafunk.excelparser.annotations.MappedExcelObject;
@@ -8,30 +28,15 @@ import org.javafunk.excelparser.exception.ExcelInvalidCell;
 import org.javafunk.excelparser.exception.ExcelInvalidCellValuesException;
 import org.javafunk.excelparser.exception.ExcelParsingException;
 import org.javafunk.excelparser.helper.HSSFHelper;
+
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.apache.poi.ss.usermodel.Sheet;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalInt;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SheetParser {
     List<ExcelInvalidCell> excelInvalidCells;
 
-    public SheetParser()
-    {
+    public SheetParser() {
         excelInvalidCells = new ArrayList<>();
     }
 
@@ -45,7 +50,7 @@ public class SheetParser {
 
         for (int currentLocation = excelObject.start(); currentLocation <= end; currentLocation++) {
             T object = getNewInstance(sheet, clazz, excelObject.parseType(), currentLocation, excelObject.zeroIfNull(),
-                    errorHandler);
+                errorHandler);
             List<Field> mappedExcelFields = getMappedExcelObjects(clazz);
             for (Field mappedField : mappedExcelFields) {
                 Class<?> fieldType = mappedField.getType();
@@ -59,7 +64,35 @@ public class SheetParser {
             }
             list.add(object);
         }
-         return list;
+        return list;
+    }
+
+    public <T> List<T> createEntityWithIterator(Sheet sheet, Class<T> clazz, Consumer<ExcelParsingException> errorHandler) {
+        List<T> list = new ArrayList<T>();
+
+        ExcelObject excelObject = getExcelObject(clazz, errorHandler);
+        if (excelObject.start() <= 0 || excelObject.end() < 0) {
+            return list;
+        }
+        int end = getEnd(sheet, clazz, excelObject);
+        for (int currentLocation = excelObject.start(); currentLocation <= end; currentLocation++) {
+            T object = getNewInstance(sheet.iterator(), sheet.getSheetName(), clazz, excelObject.parseType(), currentLocation, excelObject.zeroIfNull(),
+                errorHandler);
+            List<Field> mappedExcelFields = getMappedExcelObjects(clazz);
+            for (Field mappedField : mappedExcelFields) {
+                Class<?> fieldType = mappedField.getType();
+                Class<?> clazz1 = fieldType.equals(List.class) ? getFieldType(mappedField) : fieldType;
+                List<?> fieldValue = createEntityWithIterator(sheet, clazz1, errorHandler);
+                if (fieldType.equals(List.class)) {
+                    setFieldValue(mappedField, object, fieldValue);
+                } else if (!fieldValue.isEmpty()) {
+                    setFieldValue(mappedField, object, fieldValue.get(0));
+                }
+            }
+            list.add(object);
+        }
+
+        return list;
     }
 
     private <T> int getEnd(Sheet sheet, Class<T> clazz, ExcelObject excelObject) {
@@ -148,26 +181,56 @@ public class SheetParser {
                 cellValue = HSSFHelper.getCellValue(sheet, field.getType(), position, currentLocation, zeroIfNull, errorHandler);
                 cellValueString = HSSFHelper.getCellValue(sheet, String.class, position, currentLocation, zeroIfNull, errorHandler);
             }
-            ExcelField annotation = field.getAnnotation(ExcelField.class);
-            if (annotation.validate())
-            {
-                Pattern pattern =  Pattern.compile(annotation.regex());
-                cellValueString = cellValueString != null ? cellValueString.toString() : "";
-                Matcher matcher = pattern.matcher((String)cellValueString);
-                if(!matcher.matches())
-                {
-                    ExcelInvalidCell excelInvalidCell = new ExcelInvalidCell(position,currentLocation, (String)cellValueString);
-                    excelInvalidCells.add(excelInvalidCell);
-                    if(annotation.validationType() == ExcelField.ValidationType.HARD)
-                    {
-                        throw new ExcelInvalidCellValuesException("Invalid cell value at [" + currentLocation + ", " + position + "] in the sheet. This exception can be suppressed by setting 'validationType' in @ExcelField to 'ValidationType.SOFT");
-                    }
-                }
-            }
+            validateAnnotation(field, cellValueString, position, currentLocation);
             setFieldValue(field, object, cellValue);
         }
 
         return object;
+    }
+
+    private <T> T getNewInstance(Iterator<Row> rowIterator, String sheetName, Class<T> clazz, ParseType parseType, Integer currentLocation, boolean zeroIfNull, Consumer<ExcelParsingException> errorHandler) {
+        T object = getInstance(clazz, errorHandler);
+        Map<Integer, Field> excelPositionMap = getSortedExcelFieldPositionMap(clazz);
+        Row row = null;
+        for (Integer position : excelPositionMap.keySet()) {
+            Field field = excelPositionMap.get(position);
+            Object cellValue;
+            Object cellValueString;
+
+            if (ParseType.ROW == parseType) {
+                if (null == row || row.getRowNum() + 1 != currentLocation) {
+                    row = getRow(rowIterator, currentLocation);
+                }
+                cellValue = HSSFHelper.getCellValue(row, sheetName, field.getType(), currentLocation, position, zeroIfNull, errorHandler);
+                cellValueString = HSSFHelper.getCellValue(row, sheetName, String.class, currentLocation, position, zeroIfNull, errorHandler);
+            } else {
+                if (null == row || row.getRowNum() + 1 != position) {
+                    row = getRow(rowIterator, position);
+                }
+                cellValue = HSSFHelper.getCellValue(row, sheetName, field.getType(), position, currentLocation, zeroIfNull, errorHandler);
+                cellValueString = HSSFHelper.getCellValue(row, sheetName, String.class, position, currentLocation, zeroIfNull, errorHandler);
+            }
+            validateAnnotation(field, cellValueString, position, currentLocation);
+            setFieldValue(field, object, cellValue);
+        }
+
+        return object;
+    }
+
+    private void validateAnnotation(Field field, Object cellValueString, int position, int currentLocation) {
+        ExcelField annotation = field.getAnnotation(ExcelField.class);
+        if (annotation.validate()) {
+            Pattern pattern = Pattern.compile(annotation.regex());
+            cellValueString = cellValueString != null ? cellValueString.toString() : "";
+            Matcher matcher = pattern.matcher((String) cellValueString);
+            if (!matcher.matches()) {
+                ExcelInvalidCell excelInvalidCell = new ExcelInvalidCell(position, currentLocation, (String) cellValueString);
+                excelInvalidCells.add(excelInvalidCell);
+                if (annotation.validationType() == ExcelField.ValidationType.HARD) {
+                    throw new ExcelInvalidCellValuesException("Invalid cell value at [" + currentLocation + ", " + position + "] in the sheet. This exception can be suppressed by setting 'validationType' in @ExcelField to 'ValidationType.SOFT");
+                }
+            }
+        }
     }
 
     private <T> T getInstance(Class<T> clazz, Consumer<ExcelParsingException> errorHandler) {
@@ -193,6 +256,15 @@ public class SheetParser {
 
     private <T> Map<Integer, Field> getExcelFieldPositionMap(Class<T> clazz) {
         Map<Integer, Field> fieldMap = new HashMap<>();
+        return fillMap(clazz, fieldMap);
+    }
+
+    private <T> Map<Integer, Field> getSortedExcelFieldPositionMap(Class<T> clazz) {
+        Map<Integer, Field> fieldMap = new TreeMap<>();
+        return fillMap(clazz, fieldMap);
+    }
+
+    private <T> Map<Integer, Field> fillMap(Class<T> clazz, Map<Integer, Field> fieldMap) {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             ExcelField excelField = field.getAnnotation(ExcelField.class);
